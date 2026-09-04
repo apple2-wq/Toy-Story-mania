@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0,
+               maximum-scale=1.0, user-scalable=no">
+
+<title>WESTERN TARGET SHOOTING</title>
+
+<style>
+/* =========================
+   全体
+========================= */
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background: #140b08;
+    color: white;
+    user-select: none;
+}
+
+/* =========================
+   ゲーム画面
+========================= */
+
+#game {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+
+    /* 西部劇っぽい背景 */
+    background:
+        radial-gradient(circle at 50% 25%,
+            rgba(255,220,130,0.45),
+            transparent 35%),
+        linear-gradient(
+            to bottom,
+            #32206b 0%,
+            #392577 25%,
+            #251746 55%,
+            #17100e 100%
+        );
+}
+
+/* =========================
+   背景の岩
+========================= */
+
+.rock {
+    position: absolute;
+    bottom: -80px;
+
+    background:
+        radial-gradient(circle at 30% 25%, #76645c, transparent 8%),
+        radial-gradient(circle at 65% 35%, #62534e, transparent 10%),
+        linear-gradient(135deg, #514542, #282222);
+
+    border-radius: 50% 50% 15% 15%;
+    opacity: 0.9;
+}
+
+.rock1 {
+    width: 42vw;
+    height: 28vh;
+    left: -10vw;
+}
+
+.rock2 {
+    width: 45vw;
+    height: 30vh;
+    right: -10vw;
+}
+
+.rock3 {
+    width: 55vw;
+    height: 22vh;
+    left: 25vw;
+    bottom: -100px;
+}
+
+/* =========================
+   鉱山の木の柱
+========================= */
+
+.mine {
+    position: absolute;
+    top: 23%;
+    left: 0;
+    width: 100%;
+    height: 50%;
+}
+
+.beam {
+    position: absolute;
+    width: 90%;
+    height: 18px;
+    background: linear-gradient(#9a5b25, #4d2814);
+    left: 5%;
+    box-shadow: 0 5px 0 #29150c;
+}
+
+.beam.top {
+    top: 10%;
+}
+
+.beam.bottom {
+    bottom: 8%;
+}
+
+.pillar {
+    position: absolute;
+    width: 18px;
+    height: 80%;
+    top: 10%;
+    background: linear-gradient(
+        to right,
+        #42210f,
+        #a35f27,
+        #542710
+    );
+}
+
+.p1 {
+    left: 8%;
+}
+
+.p2 {
+    left: 32%;
+}
+
+.p3 {
+    left: 57%;
+}
+
+.p4 {
+    left: 82%;
+}
+
+/* =========================
+   画面上部
+========================= */
+
+#topBar {
+    position: absolute;
+    z-index: 1000;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 12px 18px;
+
+    background:
+        linear-gradient(
+            to bottom,
+            #d8741b,
+            #8f2e0e
+        );
+
+    border-bottom: 5px solid #f2b32d;
+
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+.logo {
+    font-size: clamp(18px, 4vw, 34px);
+    font-weight: 900;
+
+    color: #ffd44c;
+
+    text-shadow:
+        3px 3px 0 #8b170e,
+        -1px -1px 0 #fff;
+}
+
+.scoreBox,
+.timeBox {
+    background: #21120e;
+    border: 3px solid #ffd348;
+
+    padding: 6px 13px;
+
+    border-radius: 10px;
+
+    font-weight: bold;
+
+    box-shadow:
+        inset 0 0 8px #000,
+        0 3px 5px rgba(0,0,0,0.5);
+}
+
+#score {
+    color: #65ff52;
+    font-size: 24px;
+}
+
+#time {
+    color: #fff;
+    font-size: 24px;
+}
+
+/* =========================
+   的
+========================= */
+
+.target {
+    position: absolute;
+
+    width: 90px;
+    height: 90px;
+
+    border-radius: 50%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 24px;
+    font-weight: 900;
+
+    color: #31ff36;
+
+    text-shadow:
+        2px 2px 0 #14330f;
+
+    cursor: crosshair;
+
+    /* 的の見た目 */
+    background:
+        radial-gradient(
+            circle,
+            #3eff42 0%,
+            #3eff42 27%,
+            #fff 28%,
+            #fff 42%,
+            #ef3825 43%,
+            #ef3825 60%,
+            #fff 61%,
+            #fff 73%,
+            #e5291c 74%,
+            #e5291c 100%
+        );
+
+    border: 5px solid #ffcf35;
+
+    box-shadow:
+        0 0 0 4px #8f260e,
+        0 7px 10px rgba(0,0,0,0.7);
+
+    transition:
+        transform 0.08s,
+        opacity 0.2s;
+}
+
+.target:hover {
+    transform: scale(1.08);
+}
+
+/* 大きい的 */
+
+.target.big {
+    width: 120px;
+    height: 120px;
+    font-size: 30px;
+}
+
+/* 小さい的 */
+
+.target.small {
+    width: 65px;
+    height: 65px;
+    font-size: 17px;
+}
+
+/* 1000点 */
+
+.target.gold {
+    width: 75px;
+    height: 75px;
+
+    background:
+        radial-gradient(
+            circle,
+            #fff36b 0%,
+            #fff36b 25%,
+            #fff 26%,
+            #fff 42%,
+            #e82d1d 43%,
+            #e82d1d 61%,
+            #fff 62%,
+            #fff 74%,
+            #f0a51c 75%
+        );
+}
+
+/* =========================
+   命中エフェクト
+========================= */
+
+.hit {
+    animation: hit 0.35s forwards;
+}
+
+@keyframes hit {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.35) rotate(8deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+/* =========================
+   BANG!
+========================= */
+
+.bang {
+    position: absolute;
+
+    z-index: 2000;
+
+    pointer-events: none;
+
+    color: #ffe83d;
+
+    font-size: 32px;
+    font-weight: 900;
+
+    text-shadow:
+        3px 3px 0 #b32412,
+        -2px -2px 0 #fff;
+
+    animation: bang 0.7s forwards;
+}
+
+@keyframes bang {
+    0% {
+        transform: scale(0.3) rotate(-10deg);
+        opacity: 0;
+    }
+
+    30% {
+        transform: scale(1.2) rotate(5deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform:
+            translateY(-70px)
+            scale(1)
+            rotate(-5deg);
+
+        opacity: 0;
+    }
+}
+
+/* =========================
+   スタート画面
+========================= */
+
+#startScreen {
+    position: absolute;
+
+    z-index: 5000;
+
+    inset: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(93,41,25,0.4),
+            rgba(12,6,5,0.96)
+        );
+}
+
+.title {
+    font-size: clamp(35px, 9vw, 80px);
+    font-weight: 900;
+
+    color: #ffd447;
+
+    text-shadow:
+        5px 5px 0 #8c1d0d,
+        -2px -2px 0 #fff;
+
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: clamp(16px, 4vw, 25px);
+    margin-bottom: 30px;
+}
+
+#startButton {
+    border: 5px solid #ffd13d;
+
+    background:
+        linear-gradient(
+            #ed6323,
+            #9c1d0d
+        );
+
+    color: white;
+
+    padding: 16px 45px;
+
+    border-radius: 15px;
+
+    font-size: 25px;
+    font-weight: 900;
+
+    box-shadow:
+        0 7px 0 #531109,
+        0 12px 20px rgba(0,0,0,0.6);
+
+    cursor: pointer;
+}
+
+#startButton:active {
+    transform: translateY(6px);
+    box-shadow: 0 1px 0 #531109;
+}
+
+/* =========================
+   ゲーム終了
+========================= */
+
+#gameOver {
+    display: none;
+
+    position: absolute;
+
+    z-index: 6000;
+
+    inset: 0;
+
+    justify-content: center;
+    align-items: center;
+
+    flex-direction: column;
+
+    background: rgba(0,0,0,0.82);
+
+    text-align: center;
+}
+
+#gameOver h1 {
+    font-size: clamp(40px, 10vw, 80px);
+    color: #ffd83d;
+
+    text-shadow:
+        4px 4px 0 #a12612;
+}
+
+.finalScore {
+    font-size: 35px;
+    margin-bottom: 25px;
+}
+
+#restartButton {
+    padding: 15px 35px;
+
+    font-size: 23px;
+    font-weight: bold;
+
+    border-radius: 12px;
+
+    border: 4px solid #ffd33d;
+
+    background: #d53c1c;
+    color: white;
+}
+
+/* =========================
+   スマホ・iPad
+========================= */
+
+@media (max-width: 600px) {
+
+    #topBar {
+        padding: 8px;
+    }
+
+    .scoreBox,
+    .timeBox {
+        padding: 4px 8px;
+    }
+
+    #score,
+    #time {
+        font-size: 19px;
+    }
+
+    .target.big {
+        width: 95px;
+        height: 95px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+    <!-- 背景 -->
+
+    <div class="mine">
+        <div class="beam top"></div>
+        <div class="beam bottom"></div>
+
+        <div class="pillar p1"></div>
+        <div class="pillar p2"></div>
+        <div class="pillar p3"></div>
+        <div class="pillar p4"></div>
+    </div>
+
+    <div class="rock rock1"></div>
+    <div class="rock rock2"></div>
+    <div class="rock rock3"></div>
+
+
+    <!-- 上のスコア -->
+
+    <div id="topBar">
+
+        <div class="logo">
+            TARGET SHOOTING
+        </div>
+
+        <div class="scoreBox">
+            SCORE:
+            <span id="score">0</span>
+        </div>
+
+        <div class="timeBox">
+            TIME:
+            <span id="time">30</span>
+        </div>
+
+    </div>
+
+
+    <!-- 的を置く場所 -->
+
+    <div id="targets"></div>
+
+
+    <!-- スタート画面 -->
+
+    <div id="startScreen">
+
+        <div class="title">
+            TARGET<br>
+            SHOOTING
+        </div>
+
+        <div class="subtitle">
+            🎯 的をタップして高得点をねらえ！
+        </div>
+
+        <button id="startButton">
+            GAME START
+        </button>
+
+    </div>
+
+
+    <!-- ゲーム終了画面 -->
+
+    <div id="gameOver">
+
+        <h1>TIME UP!</h1>
+
+        <div class="finalScore">
+            SCORE:
+            <span id="finalScore">0</span>
+        </div>
+
+        <button id="restartButton">
+            PLAY AGAIN
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* ==================================
+   ゲーム設定
+================================== */
+
+const GAME_TIME = 30;
+
+/*
+    的の種類
+
+    score = 得点
+    class = 大きさ
+    speed = 移動速度
+*/
+
+const targetTypes = [
+
+    {
+        score: 100,
+        className: "small",
+        speed: 1.2
+    },
+
+    {
+        score: 300,
+        className: "",
+        speed: 1.8
+    },
+
+    {
+        score: 500,
+        className: "big",
+        speed: 2.3
+    },
+
+    {
+        score: 1000,
+        className: "gold",
+        speed: 3.0
+    }
+
+];
+
+
+/* ==================================
+   変数
+================================== */
+
+let score = 0;
+
+let timeLeft = GAME_TIME;
+
+let gameRunning = false;
+
+let timerInterval;
+
+let targetInterval;
+
+
+/* ==================================
+   HTML取得
+================================== */
+
+const game =
+    document.getElementById("game");
+
+const targets =
+    document.getElementById("targets");
+
+const scoreDisplay =
+    document.getElementById("score");
+
+const timeDisplay =
+    document.getElementById("time");
+
+const startScreen =
+    document.getElementById("startScreen");
+
+const gameOver =
+    document.getElementById("gameOver");
+
+const finalScore =
+    document.getElementById("finalScore");
+
+const startButton =
+    document.getElementById("startButton");
+
+const restartButton =
+    document.getElementById("restartButton");
+
+
+/* ==================================
+   ゲーム開始
+================================== */
+
+function startGame() {
+
+    score = 0;
+
+    timeLeft = GAME_TIME;
+
+    gameRunning = true;
+
+    scoreDisplay.textContent = score;
+
+    timeDisplay.textContent = timeLeft;
+
+    startScreen.style.display = "none";
+
+    gameOver.style.display = "none";
+
+    targets.innerHTML = "";
+
+
+    /* 最初から的を出す */
+
+    for (let i = 0; i < 5; i++) {
+        createTarget();
+    }
+
+
+    /* 定期的に新しい的を出す */
+
+    targetInterval = setInterval(() => {
+
+        if (gameRunning) {
+            createTarget();
+        }
+
+    }, 900);
+
+
+    /* タイマー */
+
+    timerInterval = setInterval(() => {
+
+        timeLeft--;
+
+        timeDisplay.textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+            endGame();
+        }
+
+    }, 1000);
+
+}
+
+
+/* ==================================
+   的を作る
+================================== */
+
+function createTarget() {
+
+    if (!gameRunning) return;
+
+
+    /* 的の種類をランダム選択 */
+
+    const type =
+        targetTypes[
+            Math.floor(
+                Math.random() *
+                targetTypes.length
+            )
+        ];
+
+
+    const target =
+        document.createElement("div");
+
+
+    target.classList.add("target");
+
+
+    if (type.className) {
+        target.classList.add(type.className);
+    }
+
+
+    target.textContent =
+        type.score;
+
+
+    /* 画面内のランダムな位置 */
+
+    const maxX =
+        game.clientWidth -
+        target.offsetWidth -
+        10;
+
+    const maxY =
+        game.clientHeight -
+        target.offsetHeight -
+        30;
+
+
+    let x =
+        Math.random() *
+        Math.max(maxX, 50);
+
+    let y =
+        100 +
+        Math.random() *
+        Math.max(maxY - 100, 100);
+
+
+    target.style.left = x + "px";
+
+    target.style.top = y + "px";
+
+
+    targets.appendChild(target);
+
+
+    /* ==================================
+       動き
+    ================================== */
+
+    let direction =
+        Math.random() > 0.5 ? 1 : -1;
+
+
+    let verticalDirection =
+        Math.random() > 0.5 ? 1 : -1;
+
+
+    let posX = x;
+
+    let posY = y;
+
+
+    function move() {
+
+        if (!target.isConnected) {
+            return;
+        }
+
+
+        if (!gameRunning) {
+            return;
+        }
+
+
+        posX +=
+            type.speed *
+            direction;
+
+
+        /*
+            左右の端に到達したら反転
+        */
+
+        const targetWidth =
+            target.offsetWidth;
+
+
+        if (
+            posX <= 5 ||
+            posX >=
+            game.clientWidth -
+            targetWidth -
+            5
+        ) {
+
+            direction *= -1;
+
+        }
+
+
+        /*
+            上下にも少し動かす
+        */
+
+        posY +=
+            0.35 *
+            verticalDirection;
+
+
+        if (
+            posY < 100 ||
+            posY >
+            game.clientHeight -
+            target.offsetHeight -
+            20
+        ) {
+
+            verticalDirection *= -1;
+
+        }
+
+
+        target.style.left =
+            posX + "px";
+
+        target.style.top =
+            posY + "px";
+
+
+        requestAnimationFrame(move);
+
+    }
+
+
+    move();
+
+
+    /* ==================================
+       タップしたとき
+    ================================== */
+
+    target.addEventListener(
+        "pointerdown",
+        function(e) {
+
+            e.preventDefault();
+
+            hitTarget(
+                target,
+                type.score,
+                e.clientX,
+                e.clientY
+            );
+
+        }
+    );
+
+
+    /*
+        一定時間当てられなかったら消える
+    */
+
+    setTimeout(() => {
+
+        if (target.isConnected) {
+
+            target.remove();
+
+        }
+
+    }, 5000);
+
+}
+
+
+/* ==================================
+   的に命中
+================================== */
+
+function hitTarget(
+    target,
+    points,
+    x,
+    y
+) {
+
+    if (!gameRunning) return;
+
+
+    /*
+        二重タップ防止
+    */
+
+    if (target.classList.contains("hit")) {
+        return;
+    }
+
+
+    target.classList.add("hit");
+
+
+    /* 得点追加 */
+
+    score += points;
+
+    scoreDisplay.textContent = score;
+
+
+    /* BANG表示 */
+
+    showBang(
+        x,
+        y,
+        points
+    );
+
+
+    /* 少し待って削除 */
+
+    setTimeout(() => {
+
+        target.remove();
+
+    }, 350);
+
+}
+
+
+/* ==================================
+   BANG表示
+================================== */
+
+function showBang(x, y, points) {
+
+    const bang =
+        document.createElement("div");
+
+
+    bang.className = "bang";
+
+
+    bang.textContent =
+        "BANG! +" + points;
+
+
+    bang.style.left =
+        x + "px";
+
+    bang.style.top =
+        y + "px";
+
+
+    game.appendChild(bang);
+
+
+    setTimeout(() => {
+
+        bang.remove();
+
+    }, 700);
+
+}
+
+
+/* ==================================
+   ゲーム終了
+================================== */
+
+function endGame() {
+
+    gameRunning = false;
+
+
+    clearInterval(timerInterval);
+
+    clearInterval(targetInterval);
+
+
+    targets.innerHTML = "";
+
+
+    finalScore.textContent =
+        score;
+
+
+    gameOver.style.display =
+        "flex";
+
+}
+
+
+/* ==================================
+   ボタン
+================================== */
+
+startButton.addEventListener(
+    "click",
+    startGame
+);
+
+
+restartButton.addEventListener(
+    "click",
+    startGame
+);
+
+</script>
+
+</body>
+</html>
