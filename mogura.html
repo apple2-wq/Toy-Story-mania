@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+
+<title>SPACE POP SHOOTING</title>
+
+<style>
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  background: #09041c;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* =========================
+   ゲーム全体
+========================= */
+
+#gameWrapper {
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: #09041c;
+}
+
+/*
+背景画像が16:9なので、
+ゲーム画面も16:9に固定
+*/
+
+#game {
+  position: relative;
+
+  width: min(100vw, 177.78vh);
+  aspect-ratio: 16 / 9;
+
+  background-image: url("background.jpeg");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+
+  overflow: hidden;
+
+  cursor: crosshair;
+}
+
+/* =========================
+   上の表示
+========================= */
+
+#hud {
+  position: absolute;
+
+  z-index: 1000;
+
+  top: 2%;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  width: 52%;
+
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  pointer-events: none;
+}
+
+.hudBox {
+  background: rgba(12, 6, 44, 0.82);
+
+  border: 3px solid #ffc632;
+
+  border-radius: 14px;
+
+  padding: 7px 16px;
+
+  color: white;
+
+  font-weight: 900;
+
+  font-size: clamp(12px, 2vw, 27px);
+
+  box-shadow:
+    0 0 12px #ff9b17,
+    inset 0 0 10px #4216a2;
+}
+
+#score {
+  color: #62ff5f;
+}
+
+#time {
+  color: #ffdd45;
+}
+
+/* =========================
+   出現ポイント
+========================= */
+
+.hole {
+  position: absolute;
+
+  /*
+  JSで
+  --x
+  --y
+  --size
+  を設定する
+  */
+
+  left: var(--x);
+  top: var(--y);
+
+  width: var(--size);
+  aspect-ratio: 1 / 1;
+
+  transform: translate(-50%, -50%);
+
+  pointer-events: none;
+
+  z-index: 20;
+}
+
+/* =========================
+   キャラクター
+========================= */
+
+.alien {
+  position: absolute;
+
+  width: 115%;
+
+  left: 50%;
+  bottom: -100%;
+
+  transform: translateX(-50%);
+
+  pointer-events: auto;
+
+  cursor: crosshair;
+
+  transition:
+    bottom 0.25s ease-out,
+    transform 0.15s,
+    opacity 0.15s;
+
+  filter:
+    drop-shadow(0px 4px 5px rgba(0,0,0,0.55));
+}
+
+/*
+出現！
+*/
+
+.hole.active .alien {
+  bottom: 5%;
+}
+
+/*
+撃たれたとき
+*/
+
+.alien.shot {
+  transform:
+    translateX(-50%)
+    scale(0.3)
+    rotate(15deg);
+
+  opacity: 0;
+}
+
+/* =========================
+   得点表示
+========================= */
+
+.pointPopup {
+  position: absolute;
+
+  z-index: 3000;
+
+  pointer-events: none;
+
+  color: #ffff49;
+
+  font-weight: 900;
+
+  font-size: clamp(20px, 4vw, 45px);
+
+  text-shadow:
+    3px 3px 0 #d22a14,
+    -2px -2px 0 #5b1d9b;
+
+  transform: translate(-50%, -50%);
+
+  animation: pointAnimation 0.8s forwards;
+}
+
+@keyframes pointAnimation {
+
+  0% {
+    transform:
+      translate(-50%, -50%)
+      scale(0.4);
+
+    opacity: 0;
+  }
+
+  30% {
+    transform:
+      translate(-50%, -70%)
+      scale(1.3);
+
+    opacity: 1;
+  }
+
+  100% {
+    transform:
+      translate(-50%, -160%)
+      scale(1);
+
+    opacity: 0;
+  }
+
+}
+
+/* =========================
+   発射エフェクト
+========================= */
+
+.shotEffect {
+  position: absolute;
+
+  z-index: 4000;
+
+  pointer-events: none;
+
+  width: 35px;
+  height: 35px;
+
+  border-radius: 50%;
+
+  border: 5px solid white;
+
+  box-shadow:
+    0 0 8px #fff,
+    0 0 20px #ffdd31;
+
+  transform: translate(-50%, -50%);
+
+  animation: shotEffect 0.25s forwards;
+}
+
+@keyframes shotEffect {
+
+  from {
+    width: 15px;
+    height: 15px;
+    opacity: 1;
+  }
+
+  to {
+    width: 65px;
+    height: 65px;
+    opacity: 0;
+  }
+
+}
+
+/* =========================
+   スタート画面
+========================= */
+
+#startScreen,
+#gameOverScreen {
+
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 5000;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  background:
+    rgba(5, 1, 28, 0.82);
+
+  color: white;
+}
+
+#gameOverScreen {
+  display: none;
+}
+
+.gameTitle {
+
+  font-size: clamp(32px, 7vw, 85px);
+
+  color: #ffda37;
+
+  font-weight: 900;
+
+  line-height: 0.95;
+
+  text-shadow:
+    5px 5px 0 #7221a5,
+    0 0 20px #ff8c21;
+
+}
+
+.description {
+
+  margin: 24px;
+
+  font-size: clamp(15px, 2.5vw, 28px);
+
+  font-weight: bold;
+}
+
+.gameButton {
+
+  border: 4px solid #ffd83c;
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      #7d42eb,
+      #40179d
+    );
+
+  color: white;
+
+  font-weight: 900;
+
+  font-size: clamp(16px, 2.5vw, 30px);
+
+  padding:
+    13px 35px;
+
+  box-shadow:
+    0 7px 0 #271064,
+    0 0 18px #ffb52e;
+
+}
+
+.gameButton:active {
+
+  transform: translateY(5px);
+
+  box-shadow:
+    0 2px 0 #271064;
+
+}
+
+.finalScore {
+
+  font-size: clamp(25px, 5vw, 55px);
+
+  margin: 20px;
+
+  color: #67ff62;
+
+  font-weight: 900;
+
+}
+
+/* =========================
+   スマホ/iPad
+========================= */
+
+@media (max-width: 700px) {
+
+  #hud {
+    width: 62%;
+  }
+
+  .hudBox {
+    padding: 5px 9px;
+  }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div id="gameWrapper">
+
+<div id="game">
+
+
+<!-- =====================
+     スコア・タイマー
+===================== -->
+
+<div id="hud">
+
+  <div class="hudBox">
+    SCORE
+    <span id="score">0</span>
+  </div>
+
+  <div class="hudBox">
+    TIME
+    <span id="time">30</span>
+  </div>
+
+</div>
+
+
+<!-- キャラクターを出す場所 -->
+<div id="holes"></div>
+
+
+<!-- =====================
+     スタート
+===================== -->
+
+<div id="startScreen">
+
+  <div class="gameTitle">
+    SPACE<br>
+    POP SHOOTING
+  </div>
+
+  <div class="description">
+    👽 穴から出てくるキャラクターを撃て！
+  </div>
+
+  <button
+    id="startButton"
+    class="gameButton"
+  >
+    GAME START
+  </button>
+
+</div>
+
+
+<!-- =====================
+     ゲーム終了
+===================== -->
+
+<div id="gameOverScreen">
+
+  <div class="gameTitle">
+    TIME UP!
+  </div>
+
+  <div class="finalScore">
+
+    SCORE
+
+    <span id="finalScore">
+      0
+    </span>
+
+  </div>
+
+  <button
+    id="restartButton"
+    class="gameButton"
+  >
+    PLAY AGAIN
+  </button>
+
+</div>
+
+
+</div>
+</div>
+
+
+<script>
+
+/* ==================================
+   基本設定
+================================== */
+
+const GAME_TIME = 30;
+
+
+/*
+背景画像にある穴の位置。
+
+x = 横位置 %
+y = 縦位置 %
+size = キャラの大きさ
+points = 得点
+
+背景に合わせて位置を設定してあるよ！
+*/
+
+const holeData = [
+
+  /* 上段 */
+
+  {
+    x: 32.5,
+    y: 36,
+    size: 7,
+    points: 2000
+  },
+
+  {
+    x: 63.5,
+    y: 36,
+    size: 7,
+    points: 2000
+  },
+
+
+  /* 上から2段目 */
+
+  {
+    x: 29.5,
+    y: 43.5,
+    size: 8,
+    points: 1000
+  },
+
+  {
+    x: 67,
+    y: 43.5,
+    size: 8,
+    points: 1000
+  },
+
+
+  /* 中段 */
+
+  {
+    x: 22.5,
+    y: 55,
+    size: 9,
+    points: 500
+  },
+
+  {
+    x: 76,
+    y: 55,
+    size: 9,
+    points: 500
+  },
+
+
+  /* ロケット前 */
+
+  {
+    x: 48,
+    y: 59,
+    size: 8,
+    points: 3000
+  },
+
+
+  /* 中央左右 */
+
+  {
+    x: 29,
+    y: 68,
+    size: 8,
+    points: 1000
+  },
+
+  {
+    x: 68.5,
+    y: 68,
+    size: 8,
+    points: 1000
+  },
+
+
+  /* 中央 */
+
+  {
+    x: 48,
+    y: 69.5,
+    size: 8,
+    points: 2000
+  },
+
+
+  /* 一番下 */
+
+  {
+    x: 36,
+    y: 80,
+    size: 8,
+    points: 500
+  },
+
+  {
+    x: 46,
+    y: 80,
+    size: 8,
+    points: 500
+  },
+
+  {
+    x: 56,
+    y: 80,
+    size: 8,
+    points: 500
+  },
+
+  {
+    x: 66,
+    y: 80,
+    size: 8,
+    points: 500
+  }
+
+];
+
+
+/* ==================================
+   変数
+================================== */
+
+let score = 0;
+
+let timeLeft = GAME_TIME;
+
+let gameRunning = false;
+
+let timerInterval = null;
+
+let spawnTimer = null;
+
+
+/* ==================================
+   HTML
+================================== */
+
+const game =
+  document.getElementById("game");
+
+const holesContainer =
+  document.getElementById("holes");
+
+const scoreText =
+  document.getElementById("score");
+
+const timeText =
+  document.getElementById("time");
+
+const startScreen =
+  document.getElementById("startScreen");
+
+const gameOverScreen =
+  document.getElementById("gameOverScreen");
+
+const startButton =
+  document.getElementById("startButton");
+
+const restartButton =
+  document.getElementById("restartButton");
+
+const finalScore =
+  document.getElementById("finalScore");
+
+
+/* ==================================
+   穴を作る
+================================== */
+
+function createHoles() {
+
+  holesContainer.innerHTML = "";
+
+
+  holeData.forEach(
+    (data, index) => {
+
+      const hole =
+        document.createElement("div");
+
+
+      hole.className =
+        "hole";
+
+
+      hole.style.setProperty(
+        "--x",
+        data.x + "%"
+      );
+
+
+      hole.style.setProperty(
+        "--y",
+        data.y + "%"
+      );
+
+
+      hole.style.setProperty(
+        "--size",
+        data.size + "%"
+      );
+
+
+      hole.dataset.index =
+        index;
+
+
+      /*
+      キャラ画像
+      */
+
+      const alien =
+        document.createElement("img");
+
+
+      alien.className =
+        "alien";
+
+
+      alien.src =
+        "alien.jpeg";
+
+
+      alien.alt =
+        "target character";
+
+
+      /*
+      タップしたら撃つ
+      */
+
+      alien.addEventListener(
+        "pointerdown",
+        function(event) {
+
+          event.preventDefault();
+
+          shootAlien(
+            hole,
+            alien,
+            data,
+            event.clientX,
+            event.clientY
+          );
+
+        }
+      );
+
+
+      hole.appendChild(alien);
+
+      holesContainer.appendChild(hole);
+
+    }
+  );
+
+}
+
+
+/* ==================================
+   キャラ出現
+================================== */
+
+function showRandomAlien() {
+
+  if (!gameRunning) {
+    return;
+  }
+
+
+  const holes =
+    Array.from(
+      document.querySelectorAll(".hole")
+    );
+
+
+  /*
+  今出ていない穴だけ
+  */
+
+  const emptyHoles =
+    holes.filter(
+      hole =>
+        !hole.classList.contains("active")
+    );
+
+
+  if (
+    emptyHoles.length === 0
+  ) {
+    return;
+  }
+
+
+  /*
+  ランダムな穴を選ぶ
+  */
+
+  const hole =
+    emptyHoles[
+      Math.floor(
+        Math.random() *
+        emptyHoles.length
+      )
+    ];
+
+
+  const alien =
+    hole.querySelector(".alien");
+
+
+  alien.classList.remove(
+    "shot"
+  );
+
+
+  hole.classList.add(
+    "active"
+  );
+
+
+  /*
+  出ている時間をランダムにする
+
+  800ms ～ 1800ms
+  */
+
+  const stayTime =
+    800 +
+    Math.random() *
+    1000;
+
+
+  setTimeout(
+    () => {
+
+      if (
+        hole.classList.contains("active")
+      ) {
+
+        hole.classList.remove(
+          "active"
+        );
+
+      }
+
+    },
+    stayTime
+  );
+
+}
+
+
+/* ==================================
+   キャラを撃った
+================================== */
+
+function shootAlien(
+  hole,
+  alien,
+  data,
+  clientX,
+  clientY
+) {
+
+  if (!gameRunning) {
+    return;
+  }
+
+
+  if (
+    !hole.classList.contains("active")
+  ) {
+
+    return;
+
+  }
+
+
+  if (
+    alien.classList.contains("shot")
+  ) {
+
+    return;
+
+  }
+
+
+  alien.classList.add(
+    "shot"
+  );
+
+
+  /*
+  得点！
+  */
+
+  score += data.points;
+
+
+  scoreText.textContent =
+    score;
+
+
+  /*
+  エフェクト
+  */
+
+  const gameRect =
+    game.getBoundingClientRect();
+
+
+  const x =
+    clientX -
+    gameRect.left;
+
+
+  const y =
+    clientY -
+    gameRect.top;
+
+
+  showShotEffect(
+    x,
+    y
+  );
+
+
+  showPoints(
+    x,
+    y,
+    data.points
+  );
+
+
+  /*
+  引っ込む
+  */
+
+  setTimeout(
+    () => {
+
+      hole.classList.remove(
+        "active"
+      );
+
+
+      alien.classList.remove(
+        "shot"
+      );
+
+    },
+    180
+  );
+
+}
+
+
+/* ==================================
+   点数表示
+================================== */
+
+function showPoints(
+  x,
+  y,
+  points
+) {
+
+  const popup =
+    document.createElement("div");
+
+
+  popup.className =
+    "pointPopup";
+
+
+  popup.textContent =
+    "+" + points;
+
+
+  popup.style.left =
+    x + "px";
+
+
+  popup.style.top =
+    y + "px";
+
+
+  game.appendChild(
+    popup
+  );
+
+
+  setTimeout(
+    () => {
+
+      popup.remove();
+
+    },
+    800
+  );
+
+}
+
+
+/* ==================================
+   発射マーク
+================================== */
+
+function showShotEffect(
+  x,
+  y
+) {
+
+  const effect =
+    document.createElement("div");
+
+
+  effect.className =
+    "shotEffect";
+
+
+  effect.style.left =
+    x + "px";
+
+
+  effect.style.top =
+    y + "px";
+
+
+  game.appendChild(
+    effect
+  );
+
+
+  setTimeout(
+    () => {
+
+      effect.remove();
+
+    },
+    300
+  );
+
+}
+
+
+/* ==================================
+   キャラを次々出す
+================================== */
+
+function startSpawning() {
+
+  function nextSpawn() {
+
+    if (!gameRunning) {
+      return;
+    }
+
+
+    /*
+    一度に1～2体出す
+    */
+
+    showRandomAlien();
+
+
+    if (
+      Math.random() >
+      0.6
+    ) {
+
+      setTimeout(
+        showRandomAlien,
+        180
+      );
+
+    }
+
+
+    /*
+    次の出現
+
+    300ms ～ 750ms
+    */
+
+    const nextTime =
+      300 +
+      Math.random() *
+      450;
+
+
+    spawnTimer =
+      setTimeout(
+        nextSpawn,
+        nextTime
+      );
+
+  }
+
+
+  nextSpawn();
+
+}
+
+
+/* ==================================
+   ゲーム開始
+================================== */
+
+function startGame() {
+
+  clearInterval(
+    timerInterval
+  );
+
+
+  clearTimeout(
+    spawnTimer
+  );
+
+
+  score = 0;
+
+  timeLeft =
+    GAME_TIME;
+
+  gameRunning =
+    true;
+
+
+  scoreText.textContent =
+    score;
+
+
+  timeText.textContent =
+    timeLeft;
+
+
+  startScreen.style.display =
+    "none";
+
+
+  gameOverScreen.style.display =
+    "none";
+
+
+  /*
+  全キャラを隠す
+  */
+
+  document
+    .querySelectorAll(".hole")
+    .forEach(
+      hole => {
+
+        hole.classList.remove(
+          "active"
+        );
+
+      }
+    );
+
+
+  /*
+  キャラ出現開始
+  */
+
+  startSpawning();
+
+
+  /*
+  30秒タイマー
+  */
+
+  timerInterval =
+    setInterval(
+      () => {
+
+        timeLeft--;
+
+
+        timeText.textContent =
+          timeLeft;
+
+
+        if (
+          timeLeft <= 0
+        ) {
+
+          endGame();
+
+        }
+
+      },
+      1000
+    );
+
+}
+
+
+/* ==================================
+   終了
+================================== */
+
+function endGame() {
+
+  gameRunning =
+    false;
+
+
+  clearInterval(
+    timerInterval
+  );
+
+
+  clearTimeout(
+    spawnTimer
+  );
+
+
+  document
+    .querySelectorAll(".hole")
+    .forEach(
+      hole => {
+
+        hole.classList.remove(
+          "active"
+        );
+
+      }
+    );
+
+
+  finalScore.textContent =
+    score;
+
+
+  gameOverScreen.style.display =
+    "flex";
+
+}
+
+
+/* ==================================
+   ボタン
+================================== */
+
+startButton.addEventListener(
+  "click",
+  startGame
+);
+
+
+restartButton.addEventListener(
+  "click",
+  startGame
+);
+
+
+/* 最初に穴を作る */
+
+createHoles();
+
+</script>
+
+</body>
+</html>
