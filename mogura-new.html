@@ -1,0 +1,67 @@
+/* =========================
+   キャラクター
+========================= */
+
+.alien {
+  position: absolute;
+
+  width: 115%;
+
+  left: 50%;
+
+  /* 普段は穴より下に隠す */
+  bottom: -120%;
+
+  transform: translateX(-50%);
+
+  /* 穴にいる間は完全に見えない */
+  opacity: 0;
+  visibility: hidden;
+
+  pointer-events: none;
+
+  cursor: crosshair;
+
+  transition:
+    bottom 0.28s ease-out,
+    opacity 0.12s ease-out,
+    transform 0.15s;
+
+  filter:
+    drop-shadow(0px 4px 5px rgba(0,0,0,0.55));
+}
+
+
+/* =========================
+   穴から出現！
+========================= */
+
+.hole.active .alien {
+
+  /* 穴から上に出る */
+  bottom: 5%;
+
+  /* 出ているときだけ表示 */
+  opacity: 1;
+  visibility: visible;
+
+  /* 出ているときだけ撃てる */
+  pointer-events: auto;
+}
+
+
+/* =========================
+   撃たれたとき
+========================= */
+
+.alien.shot {
+
+  transform:
+    translateX(-50%)
+    scale(0.3)
+    rotate(15deg);
+
+  opacity: 0;
+
+  pointer-events: none;
+}
