@@ -177,200 +177,194 @@ body {
 
 
 /* =========================================
-   穴の位置
+   キャラクターの出現位置
 
-   実際の穴自体は背景画像に描いてあるので、
-   このdivは透明な「出現場所」
+   ★ x・y の位置が「キャラの足元」になる
 ========================================= */
 
 .hole {
-
   position: absolute;
 
-  left:
-    var(--x);
+  left: var(--x);
+  top: var(--y);
 
-  top:
-    var(--y);
-
-  width:
-    var(--size);
-
-  aspect-ratio:
-    1 / 1;
-
-  transform:
-    translate(
-      -50%,
-      -50%
-    );
+  width: var(--size);
 
   /*
-    穴の外にいるキャラを
-    完全に切り取る
+    高さを少し大きめにして
+    キャラが上に出られるようにする
   */
+  height: calc(var(--size) * 2.2);
 
-  overflow: hidden;
+  /*
+    ★ 左右は中央
+    ★ 下端をピンク点に合わせる
+  */
+  transform:
+    translate(-50%, -100%);
 
-  border-radius:
-    50%;
+  pointer-events: none;
 
-  pointer-events:
-    none;
+  z-index: 20;
 
-  z-index:
-    20;
+  /*
+    前みたいな丸い切り抜きはやめる
+    → キャラ全身がちゃんと出る
+  */
+  overflow: visible;
 }
 
 
 /* =========================================
    キャラクター
 
-   ★ 普段は完全に非表示
+   普段は完全に非表示
 ========================================= */
 
 .alien {
-
   position: absolute;
 
-  /*
-    キャラ画像の大きさ
-  */
-
-  width:
-    120%;
-
-  height:
-    auto;
-
+  width: 140%;
+  height: auto;
 
   /*
-    穴の中央
+    ★ 足元を穴の中心（ピンク点）に固定
   */
-
-  left:
-    50%;
-
+  left: 50%;
+  bottom: 0;
 
   /*
-    普段は穴の下に隠す
+    普段は穴の中にいるイメージで
+    下に下げておく
   */
-
-  bottom:
-    -120%;
-
-
   transform:
-    translateX(-50%);
+    translate(-50%, 65%)
+    scale(0.85);
 
+  opacity: 0;
 
-  /*
-    ★ 待機中は完全に見えない
-  */
+  visibility: hidden;
 
-  opacity:
-    0;
+  pointer-events: none;
 
-  visibility:
-    hidden;
-
-
-  /*
-    待機中は撃てない
-  */
-
-  pointer-events:
-    none;
-
-
-  cursor:
-    crosshair;
-
-
-  /*
-    ニョキッと出る動き
-  */
-
-  transition:
-
-    bottom
-    0.28s
-    ease-out,
-
-    opacity
-    0.10s
-    ease-out,
-
-    transform
-    0.16s
-    ease-out;
-
+  cursor: crosshair;
 
   filter:
-
     drop-shadow(
-      0 4px 4px
-      rgba(0,0,0,0.45)
+      0 5px 5px
+      rgba(0, 0, 0, 0.45)
     );
 }
 
 
 /* =========================================
-   ★ キャラクター出現
+   ★ 穴から「ひょこっ！」
 ========================================= */
 
 .hole.active .alien {
+  visibility: visible;
+
+  pointer-events: auto;
+
+  animation:
+    alienPop
+    0.38s
+    cubic-bezier(0.2, 0.9, 0.3, 1.25)
+    forwards;
+}
+
+
+/* =========================================
+   ひょこっと出るアニメーション
+========================================= */
+
+@keyframes alienPop {
 
   /*
-    穴の下から上へ
+    最初
+    穴の中
   */
+  0% {
+    transform:
+      translate(-50%, 65%)
+      scale(0.82);
 
-  bottom:
-    -5%;
+    opacity: 0;
+  }
 
 
   /*
-    出現したときだけ表示
+    ニョキッ！
   */
+  45% {
+    transform:
+      translate(-50%, -8%)
+      scale(1.07);
 
-  opacity:
-    1;
-
-  visibility:
-    visible;
+    opacity: 1;
+  }
 
 
   /*
-    出現中だけ撃てる
+    少し戻る
   */
+  70% {
+    transform:
+      translate(-50%, 3%)
+      scale(0.98);
 
-  pointer-events:
-    auto;
+    opacity: 1;
+  }
+
+
+  /*
+    ★ 最終位置
+    足元がピンク点
+  */
+  100% {
+    transform:
+      translate(-50%, 0%)
+      scale(1);
+
+    opacity: 1;
+  }
 
 }
 
 
 /* =========================================
-   撃たれた！
+   撃たれたとき
 ========================================= */
 
 .alien.shot {
+  animation:
+    alienShot
+    0.20s
+    forwards;
 
-  transform:
-
-    translateX(-50%)
-
-    scale(0.25)
-
-    rotate(15deg);
-
-
-  opacity:
-    0;
+  pointer-events: none;
+}
 
 
-  pointer-events:
-    none;
+@keyframes alienShot {
+
+  0% {
+    transform:
+      translate(-50%, 0%)
+      scale(1);
+
+    opacity: 1;
+  }
+
+
+  100% {
+    transform:
+      translate(-50%, 50%)
+      scale(0.35)
+      rotate(12deg);
+
+    opacity: 0;
+  }
 
 }
 
