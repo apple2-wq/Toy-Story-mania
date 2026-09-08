@@ -221,32 +221,25 @@ body {
    普段は完全に非表示
 ========================================= */
 
+/* キャラクター */
 .alien {
   position: absolute;
 
   width: 140%;
   height: auto;
 
-  /*
-    ★ 足元を穴の中心（ピンク点）に固定
-  */
   left: 50%;
   bottom: 0;
 
-  /*
-    普段は穴の中にいるイメージで
-    下に下げておく
-  */
+  /* 待機中は穴の下 */
   transform:
-    translate(-50%, 65%)
+    translate(-50%, 70%)
     scale(0.85);
 
   opacity: 0;
-
   visibility: hidden;
 
   pointer-events: none;
-
   cursor: crosshair;
 
   filter:
@@ -257,13 +250,9 @@ body {
 }
 
 
-/* =========================================
-   ★ 穴から「ひょこっ！」
-========================================= */
-
+/* 出現 */
 .hole.active .alien {
   visibility: visible;
-
   pointer-events: auto;
 
   animation:
@@ -274,68 +263,48 @@ body {
 }
 
 
-/* =========================================
-   ひょこっと出るアニメーション
-========================================= */
-
+/* ひょこっと出現 */
 @keyframes alienPop {
 
-  /*
-    最初
-    穴の中
-  */
+  /* 穴の中 */
   0% {
     transform:
-      translate(-50%, 65%)
+      translate(-50%, 70%)
       scale(0.82);
 
     opacity: 0;
   }
 
-
-  /*
-    ニョキッ！
-  */
+  /* 勢いよく上へ */
   45% {
     transform:
-      translate(-50%, -8%)
+      translate(-50%, -28%)
       scale(1.07);
 
     opacity: 1;
   }
 
-
-  /*
-    少し戻る
-  */
+  /* 少し戻る */
   70% {
     transform:
-      translate(-50%, 3%)
+      translate(-50%, -18%)
       scale(0.98);
 
     opacity: 1;
   }
 
-
-  /*
-    ★ 最終位置
-    足元がピンク点
-  */
+  /* 完全に出た位置 */
   100% {
     transform:
-      translate(-50%, 0%)
+      translate(-50%, -20%)
       scale(1);
 
     opacity: 1;
   }
-
 }
 
 
-/* =========================================
-   撃たれたとき
-========================================= */
-
+/* 撃たれたとき */
 .alien.shot {
   animation:
     alienShot
@@ -350,22 +319,20 @@ body {
 
   0% {
     transform:
-      translate(-50%, 0%)
+      translate(-50%, -20%)
       scale(1);
 
     opacity: 1;
   }
 
-
   100% {
     transform:
-      translate(-50%, 50%)
+      translate(-50%, 45%)
       scale(0.35)
       rotate(12deg);
 
     opacity: 0;
   }
-
 }
 
 
