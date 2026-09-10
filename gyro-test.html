@@ -87,6 +87,12 @@
 
 <script type="module">
 
+    if ("hid" in navigator) {
+  alert("WebHID対応");
+} else {
+  alert("このブラウザはWebHID非対応");
+}
+
 import * as JoyCon
   from "https://cdn.jsdelivr.net/npm/joy-con-webhid@0.7.4/+esm";
 
