@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Joy-Con Test</title>
+
+  <style>
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      color: #ffd84d;
+    }
+
+    .controller {
+      margin-top: 20px;
+      padding: 16px;
+      border: 3px solid #ffd84d;
+      border-radius: 14px;
+      background: #222;
+    }
+
+    .name {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .label {
+      margin-top: 10px;
+      color: #7fe7ff;
+      font-weight: bold;
+    }
+
+    .value {
+      font-family: monospace;
+      font-size: 16px;
+      line-height: 1.6;
+      word-break: break-all;
+    }
+
+    #status {
+      margin-top: 20px;
+      padding: 12px;
+      background: #333;
+      border-radius: 10px;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <h1>🎮 Joy-Con 確認ページ</h1>
+
+  <p>
+    MacのChromeでこのページを開いて、
+    Joy-Conのスティックやボタンを押してみてね。
+  </p>
+
+  <div id="status">
+    コントローラーを確認中...
+  </div>
+
+  <div id="controllers"></div>
+
+
+  <script>
+
+    const controllers =
+      document.getElementById("controllers");
+
+    const status =
+      document.getElementById("status");
+
+
+    function updateGamepads() {
+
+      const pads =
+        Array.from(navigator.getGamepads())
+        .filter(pad => pad !== null);
+
+
+      if (pads.length === 0) {
+
+        status.textContent =
+          "コントローラーが見つかりません";
+
+        controllers.innerHTML =
+          "";
+
+        requestAnimationFrame(updateGamepads);
+
+        return;
+      }
+
+
+      status.textContent =
+        pads.length +
+        " 個のコントローラーを認識中";
+
+
+      let html = "";
+
+
+      pads.forEach((pad, padIndex) => {
+
+        const pressedButtons = [];
+
+
+        pad.buttons.forEach(
+          (button, buttonIndex) => {
+
+            if (button.pressed) {
+
+              pressedButtons.push(
+                buttonIndex
+              );
+
+            }
+
+          }
+        );
+
+
+        const axesText =
+          pad.axes
+            .map(
+              (value, index) =>
+                "axes[" +
+                index +
+                "] = " +
+                value.toFixed(2)
+            )
+            .join("<br>");
+
+
+        const buttonValues =
+          pad.buttons
+            .map(
+              (button, index) =>
+                "button[" +
+                index +
+                "] = " +
+                button.value.toFixed(2)
+            )
+            .join("<br>");
+
+
+        html += `
+          <div class="controller">
+
+            <div class="name">
+              コントローラー ${padIndex + 1}
+            </div>
+
+            <div class="label">
+              名前
+            </div>
+
+            <div class="value">
+              ${pad.id}
+            </div>
+
+
+            <div class="label">
+              Gamepad index
+            </div>
+
+            <div class="value">
+              ${pad.index}
+            </div>
+
+
+            <div class="label">
+              今押しているボタン番号
+            </div>
+
+            <div class="value">
+              ${
+                pressedButtons.length > 0
+                  ? pressedButtons.join(", ")
+                  : "なし"
+              }
+            </div>
+
+
+            <div class="label">
+              スティック / axes
+            </div>
+
+            <div class="value">
+              ${axesText}
+            </div>
+
+
+            <div class="label">
+              全ボタン
+            </div>
+
+            <div class="value">
+              ${buttonValues}
+            </div>
+
+          </div>
+        `;
+
+      });
+
+
+      controllers.innerHTML =
+        html;
+
+
+      requestAnimationFrame(
+        updateGamepads
+      );
+
+    }
+
+
+    window.addEventListener(
+      "gamepadconnected",
+      event => {
+
+        console.log(
+          "接続:",
+          event.gamepad.id
+        );
+
+      }
+    );
+
+
+    window.addEventListener(
+      "gamepaddisconnected",
+      event => {
+
+        console.log(
+          "切断:",
+          event.gamepad.id
+        );
+
+      }
+    );
+
+
+    updateGamepads();
+
+  </script>
+
+</body>
+
+</html>
