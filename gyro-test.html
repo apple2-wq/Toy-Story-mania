@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Joy-Con Gyro Test</title>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: white;
+    text-align: center;
+    padding: 30px;
+  }
+
+  button {
+    font-size: 20px;
+    padding: 14px 24px;
+    margin: 20px;
+  }
+
+  #status {
+    margin: 20px;
+    font-size: 18px;
+  }
+
+  #area {
+    position: relative;
+    width: 80vw;
+    height: 55vw;
+    max-height: 600px;
+    margin: auto;
+
+    border: 3px solid white;
+    background: #222;
+
+    overflow: hidden;
+  }
+
+  #crosshair {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    font-size: 60px;
+    color: yellow;
+
+    pointer-events: none;
+  }
+
+  #values {
+    margin-top: 20px;
+    font-family: monospace;
+    font-size: 18px;
+    line-height: 1.7;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>Joy-Con ジャイロテスト</h1>
+
+<button id="connect">
+  Joy-Conを接続
+</button>
+
+<div id="status">
+  未接続
+</div>
+
+<div id="area">
+  <div id="crosshair">＋</div>
+</div>
+
+<div id="values">
+  gyro X: 0<br>
+  gyro Y: 0<br>
+  gyro Z: 0
+</div>
+
+
+<script type="module">
+
+import * as JoyCon
+  from "https://cdn.jsdelivr.net/npm/joy-con-webhid@0.7.4/+esm";
+
+
+const connectButton =
+  document.getElementById("connect");
+
+const status =
+  document.getElementById("status");
+
+const crosshair =
+  document.getElementById("crosshair");
+
+const values =
+  document.getElementById("values");
+
+
+let aimX = 50;
+let aimY = 50;
+
+
+/* 動く速さ */
+const sensitivity = 0.04;
+
+
+/* =====================================
+   Joy-Con 接続
+===================================== */
+
+connectButton.addEventListener(
+  "click",
+  async () => {
+
+    if (!("hid" in navigator)) {
+
+      status.textContent =
+        "このブラウザはWebHIDに対応していません";
+
+      return;
+    }
+
+
+    try {
+
+      status.textContent =
+        "Joy-Conを選択してください…";
+
+
+      await JoyCon.connectJoyCon();
+
+
+      status.textContent =
+        "接続中…";
+
+    }
+
+    catch (error) {
+
+      console.error(error);
+
+      status.textContent =
+        "接続できませんでした";
+
+    }
+
+  }
+);
+
+
+/* =====================================
+   Joy-Conを監視
+===================================== */
+
+setInterval(
+  async () => {
+
+    for (
+      const joyCon
+      of JoyCon.connectedJoyCons.values()
+    ) {
+
+      if (
+        joyCon.eventListenerAttached
+      ) {
+
+        continue;
+
+      }
+
+
+      await joyCon.open();
+
+      await joyCon.enableStandardFullMode();
+
+      await joyCon.enableIMUMode();
+
+
+      status.textContent =
+        "Joy-Con接続成功！";
+
+
+      /* =================================
+         ジャイロデータ
+      ================================= */
+
+      joyCon.addEventListener(
+        "hidinput",
+        ({ detail }) => {
+
+          /*
+          まずデータ全部を
+          Consoleでも確認できる
+          */
+
+          console.log(detail);
+
+
+          /*
+          ライブラリのorientation情報を取得
+          */
+
+          const gyro =
+            detail.actualGyroscope ||
+            detail.gyroscopes?.[0];
+
+
+          if (!gyro) {
+            return;
+          }
+
+
+          const gx =
+            gyro.x || 0;
+
+          const gy =
+            gyro.y || 0;
+
+          const gz =
+            gyro.z || 0;
+
+
+          values.innerHTML =
+
+            "gyro X: "
+            + gx.toFixed(2)
+            + "<br>"
+
+            + "gyro Y: "
+            + gy.toFixed(2)
+            + "<br>"
+
+            + "gyro Z: "
+            + gz.toFixed(2);
+
+
+          /* =============================
+             ジャイロ → 照準
+          ============================= */
+
+          aimX +=
+            gy * sensitivity;
+
+          aimY +=
+            gx * sensitivity;
+
+
+          /* 画面外に出さない */
+
+          aimX =
+            Math.max(
+              0,
+              Math.min(100, aimX)
+            );
+
+
+          aimY =
+            Math.max(
+              0,
+              Math.min(100, aimY)
+            );
+
+
+          crosshair.style.left =
+            aimX + "%";
+
+          crosshair.style.top =
+            aimY + "%";
+
+        }
+      );
+
+
+      joyCon.eventListenerAttached =
+        true;
+
+    }
+
+  },
+
+  1000
+
+);
+
+</script>
+
+</body>
+</html>
