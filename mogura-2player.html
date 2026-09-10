@@ -650,6 +650,21 @@ body {
 
 }
 
+#controllerDebug {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+
+  z-index: 9999;
+
+  background: rgba(0,0,0,0.7);
+  color: white;
+
+  padding: 8px;
+
+  font-size: 12px;
+}
+
 </style>
 
 </head>
@@ -735,6 +750,9 @@ body {
   ＋
 
 </div>
+
+
+<div id="controllerDebug"></div>
 
 
 <!-- =====================================
@@ -2610,6 +2628,43 @@ restartButton.addEventListener(
 createHoles();
 
 updateControllers();
+
+setInterval(() => {
+
+  const pads =
+    Array.from(navigator.getGamepads())
+    .filter(pad => pad !== null);
+
+  console.clear();
+
+  pads.forEach((pad, i) => {
+
+    console.log(
+      "pad",
+      i,
+      pad.id
+    );
+
+  });
+
+}, 1000);
+
+const controllerDebug =
+  document.getElementById("controllerDebug");
+
+setInterval(() => {
+
+  const pads =
+    Array.from(navigator.getGamepads())
+    .filter(pad => pad !== null);
+
+  controllerDebug.innerHTML =
+    pads.map(
+      (pad, i) =>
+        "PAD " + i + ": " + pad.id
+    ).join("<br>");
+
+}, 500);
 
 </script>
 
