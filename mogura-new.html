@@ -2172,6 +2172,157 @@ function updateJoyCon() {
 
 updateJoyCon();
 
+/* =========================================
+   Joy-Con ボタンで発射
+========================================= */
+
+let previousButtonPressed = false;
+
+
+/* 照準の中心がキャラに当たってるか判定 */
+function shootWithCrosshair() {
+
+  if (!gameRunning) {
+    return;
+  }
+
+  const crosshairRect =
+    crosshair.getBoundingClientRect();
+
+  const aimCenterX =
+    crosshairRect.left +
+    crosshairRect.width / 2;
+
+  const aimCenterY =
+    crosshairRect.top +
+    crosshairRect.height / 2;
+
+
+  const activeAliens =
+    document.querySelectorAll(
+      ".hole.active .alien"
+    );
+
+
+  let hit = false;
+
+
+  activeAliens.forEach(alien => {
+
+    if (hit) return;
+
+
+    const alienRect =
+      alien.getBoundingClientRect();
+
+
+    if (
+      aimCenterX >= alienRect.left &&
+      aimCenterX <= alienRect.right &&
+      aimCenterY >= alienRect.top &&
+      aimCenterY <= alienRect.bottom
+    ) {
+
+      const hole =
+        alien.closest(".hole");
+
+      const index =
+        Number(hole.dataset.index);
+
+      const data =
+        holeData[index];
+
+
+      shootAlien(
+        hole,
+        alien,
+        data,
+        aimCenterX,
+        aimCenterY
+      );
+
+
+      hit = true;
+
+    }
+
+  });
+
+
+  /* 外れても発射エフェクトだけ出す */
+  if (!hit) {
+
+    const gameRect =
+      game.getBoundingClientRect();
+
+
+    showShotEffect(
+      aimCenterX - gameRect.left,
+      aimCenterY - gameRect.top
+    );
+
+  }
+
+}
+
+
+/* =========================================
+   Joy-Con入力チェック
+========================================= */
+
+function checkJoyConShoot() {
+
+  const gamepads =
+    navigator.getGamepads();
+
+  const pad =
+    gamepads[0];
+
+
+  if (pad) {
+
+    /*
+      まずは buttons[0] を発射ボタンにする
+
+      もし反応しなかったら
+      [1], [2], [3] と変えて試せる
+    */
+
+    const shootPressed =
+      pad.buttons[0]?.pressed;
+
+
+    /*
+      押した瞬間だけ1回発射
+      押しっぱなし連射を防止
+    */
+
+    if (
+      shootPressed &&
+      !previousButtonPressed
+    ) {
+
+      shootWithCrosshair();
+
+    }
+
+
+    previousButtonPressed =
+      shootPressed;
+
+  }
+
+
+  requestAnimationFrame(
+    checkJoyConShoot
+  );
+
+}
+
+
+/* 発射判定スタート */
+checkJoyConShoot();
+
 </script>
 
 
