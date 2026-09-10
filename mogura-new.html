@@ -294,6 +294,28 @@ body {
   }
 }
 
+#crosshair {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  z-index: 4500;
+
+  font-size: 55px;
+  font-weight: 900;
+
+  color: white;
+
+  text-shadow:
+    0 0 5px #000,
+    0 0 10px #ffcc00;
+
+  pointer-events: none;
+}
+
 .alien.shot {
   animation:
     alienShot
@@ -785,6 +807,7 @@ body {
 
 
 <div id="game">
+  <div id="crosshair">＋</div>
 
 
 <!-- =====================================
@@ -2081,6 +2104,73 @@ restartButton.addEventListener(
 ========================================= */
 
 createHoles();
+
+/* =========================================
+   Joy-Con 照準
+========================================= */
+
+const crosshair =
+  document.getElementById("crosshair");
+
+let aimX = 50;
+let aimY = 50;
+
+const AIM_SPEED = 0.8;
+
+function updateJoyCon() {
+
+  const gamepads =
+    navigator.getGamepads();
+
+  const pad =
+    gamepads[0];
+
+  if (pad) {
+
+    const stickX =
+      pad.axes[0] || 0;
+
+    const stickY =
+      pad.axes[1] || 0;
+
+
+    /* スティックの微妙なブレを無視 */
+    if (Math.abs(stickX) > 0.15) {
+      aimX += stickX * AIM_SPEED;
+    }
+
+    if (Math.abs(stickY) > 0.15) {
+      aimY += stickY * AIM_SPEED;
+    }
+
+
+    /* 画面から出ないようにする */
+    aimX =
+      Math.max(
+        2,
+        Math.min(98, aimX)
+      );
+
+    aimY =
+      Math.max(
+        2,
+        Math.min(98, aimY)
+      );
+
+
+    crosshair.style.left =
+      aimX + "%";
+
+    crosshair.style.top =
+      aimY + "%";
+  }
+
+  requestAnimationFrame(
+    updateJoyCon
+  );
+}
+
+updateJoyCon();
 
 </script>
 
