@@ -1518,27 +1518,177 @@ function createHoles() {
 
 function showRandomAlien() {
 
+  if (!gameRunning) {
+    return;
+  }
 
   if (
-    !gameRunning
+    characterIndex >= characterBag.length
+  ) {
+    return;
+  }
+
+
+  const holes =
+    Array.from(
+      document.querySelectorAll(".hole")
+    );
+
+
+  const emptyHoles =
+    holes.filter(
+      hole =>
+        !hole.classList.contains("active")
+    );
+
+
+  if (
+    emptyHoles.length === 0
+  ) {
+    return;
+  }
+
+
+  /* 出る穴をランダム決定 */
+
+  const hole =
+    emptyHoles[
+      Math.floor(
+        Math.random() * emptyHoles.length
+      )
+    ];
+
+
+  const alien =
+    hole.querySelector(".alien");
+
+
+  const character =
+    characterBag[characterIndex];
+
+
+  characterIndex++;
+
+
+  /* =====================================
+     今回の出現専用ID
+
+     前のキャラのタイマーに
+     消されないようにする
+  ===================================== */
+
+  const spawnId =
+    Date.now()
+    +
+    "-"
+    +
+    Math.random();
+
+
+  hole.dataset.spawnId =
+    spawnId;
+
+
+  /* =====================================
+     キャラ設定
+  ===================================== */
+
+  alien.src =
+    character.image;
+
+
+  alien.dataset.points =
+    character.points;
+
+
+  alien.dataset.type =
+    character.type;
+
+
+  alien.classList.remove(
+    "shot"
+  );
+
+
+  hole.classList.remove(
+    "rare"
+  );
+
+
+  if (
+    character.rare
   ) {
 
-    return;
+    hole.classList.add(
+      "rare"
+    );
 
   }
 
 
-  /*
-    全キャラ出し終わった
-  */
+  hole.classList.add(
+    "active"
+  );
 
-  if (
-    characterIndex
-    >=
-    characterBag.length
-  ) {
 
-    re
+  /* =====================================
+     出ている時間
+  ===================================== */
+
+  const stayTime =
+    1150;
+
+
+  setTimeout(
+
+    () => {
+
+
+      /*
+        このタイマーが
+        「今出ているキャラ」のものか確認
+
+        古いタイマーなら何もしない
+      */
+
+      if (
+        hole.dataset.spawnId !== spawnId
+      ) {
+
+        return;
+
+      }
+
+
+      if (
+        hole.classList.contains("active")
+      ) {
+
+
+        hole.classList.remove(
+          "active"
+        );
+
+
+        hole.classList.remove(
+          "rare"
+        );
+
+
+        alien.classList.remove(
+          "shot"
+        );
+
+      }
+
+
+    },
+
+    stayTime
+
+  );
+
+}
 
 
 /* =========================================
