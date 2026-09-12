@@ -1035,72 +1035,32 @@ const LEFT_SHOOT_BUTTON =
 
 const CHARACTER_TYPES = {
 
-
   green: {
-
-    image:
-      "alien-green.png",
-
-    points:
-      500,
-
-    count:
-      24,
-
-    rare:
-      false
-
+    image: "alien-green.png",
+    points: 500,
+    count: 48,
+    rare: false
   },
-
 
   blue: {
-
-    image:
-      "alien-blue.png",
-
-    points:
-      1000,
-
-    count:
-      10,
-
-    rare:
-      false
-
+    image: "alien-blue.png",
+    points: 1000,
+    count: 20,
+    rare: false
   },
-
 
   purple: {
-
-    image:
-      "alien-purple.png",
-
-    points:
-      2000,
-
-    count:
-      4,
-
-    rare:
-      false
-
+    image: "alien-purple.png",
+    points: 2000,
+    count: 8,
+    rare: false
   },
 
-
   crown: {
-
-    image:
-      "alien-crown.png",
-
-    points:
-      5000,
-
-    count:
-      2,
-
-    rare:
-      true
-
+    image: "alien-crown.png",
+    points: 5000,
+    count: 4,
+    rare: true
   }
 
 };
@@ -1768,43 +1728,85 @@ function showRandomAlien() {
 
 function startSpawning() {
 
-
   function nextSpawn() {
 
-
-    if (
-      !gameRunning
-    ) {
-
+    if (!gameRunning) {
       return;
-
     }
 
-
-    if (
-      characterIndex
-      >=
-      characterBag.length
-    ) {
-
+    if (characterIndex >= characterBag.length) {
       return;
-
     }
-
-
-    showRandomAlien();
 
 
     /*
-      700msごと
+      1回で何体出すか
 
-      40体で約28秒
+      2体が多め
+      ときどき3体
+      たまに4体
     */
+
+    const random = Math.random();
+
+    let spawnCount;
+
+    if (random < 0.55) {
+      spawnCount = 2;
+    }
+    else if (random < 0.88) {
+      spawnCount = 3;
+    }
+    else {
+      spawnCount = 4;
+    }
+
+
+    /*
+      同時出現
+    */
+
+    for (
+      let i = 0;
+      i < spawnCount;
+      i++
+    ) {
+
+      if (
+        characterIndex >= characterBag.length
+      ) {
+        break;
+      }
+
+      /*
+        完全同時だと固く見えるので
+        少しだけズラして出す
+      */
+
+      setTimeout(
+        showRandomAlien,
+        i * 70
+      );
+
+    }
+
+
+    /*
+      次のグループ出現
+
+      かなりテンポ速め
+    */
+
+    const nextTime =
+      550
+      +
+      Math.random() * 250;
+
 
     spawnTimer =
       setTimeout(
         nextSpawn,
-        700
+        nextTime
       );
 
   }
