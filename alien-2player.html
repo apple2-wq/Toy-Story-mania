@@ -1903,73 +1903,83 @@ function getConnectedPads() {
 
 function getRightPad() {
 
-
   const pads =
     getConnectedPads();
 
+  /* 名前にRやRightが入っているJoy-Conを優先 */
+  const rightPad =
+    pads.find(pad => {
+
+      const name =
+        pad.id.toLowerCase();
+
+      return (
+        name.includes("joy-con (r)") ||
+        name.includes("joy-con r") ||
+        name.includes("right")
+      );
+
+    });
+
 
   /*
-    axes 2・3 があるコントローラー優先
+    名前で見つからなければ
+    axes 2・3があるものを使う
   */
 
   return (
-
+    rightPad
+    ||
     pads.find(
-
       pad =>
         pad.axes.length >= 4
         &&
         pad.buttons.length > 3
-
     )
-
     ||
-
-    pads[0]
-
-    ||
-
     null
-
   );
 
 }
 
 
-/*
-  左Joy-Conを探す
-*/
-
 function getLeftPad() {
-
 
   const pads =
     getConnectedPads();
 
+  /* 名前にLやLeftが入っているJoy-Conを優先 */
+  const leftPad =
+    pads.find(pad => {
+
+      const name =
+        pad.id.toLowerCase();
+
+      return (
+        name.includes("joy-con (l)") ||
+        name.includes("joy-con l") ||
+        name.includes("left")
+      );
+
+    });
+
 
   /*
-    button 13 があるもの優先
+    名前で見つからなければ
+    button 13があるものを使う
   */
 
   return (
-
+    leftPad
+    ||
     pads.find(
-
       pad =>
         pad.axes.length >= 2
         &&
         pad.buttons.length > 13
-
     )
-
     ||
-
-    pads[0]
-
-    ||
-
     null
-
   );
 
 }
