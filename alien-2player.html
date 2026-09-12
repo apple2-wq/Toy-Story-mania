@@ -984,16 +984,13 @@ const GAME_TIME =
   前よりかなり速め
 */
 
-const AIM_SPEED =
-  1.6;
+const AIM_SPEED = 1.9;
 
+/* 小さい入力だけ無視 */
+const DEAD_ZONE = 0.08;
 
-/*
-  スティックの微妙なブレを無視
-*/
-
-const DEAD_ZONE =
-  0.15;
+/* 数字が大きいほどスティックにすぐ追従 */
+const SMOOTHING = 0.28;
 
 
 /* =========================================
@@ -1237,6 +1234,14 @@ let aim2X =
 
 let aim2Y =
   55;
+
+/* なめらか移動用 */
+
+let smoothRightX = 0;
+let smoothRightY = 0;
+
+let smoothLeftX = 0;
+let smoothLeftY = 0;
 
 
 /* 発射ボタン前回状態 */
@@ -1976,10 +1981,8 @@ function getLeftPad() {
 
 function updateControllers() {
 
-
   const rightPad =
     getRightPad();
-
 
   const leftPad =
     getLeftPad();
@@ -1990,97 +1993,101 @@ function updateControllers() {
      右Joy-Con
   ===================================== */
 
-  if (
-    rightPad
-  ) {
+  if (rightPad) {
+
+    let rawX =
+      rightPad.axes[RIGHT_AXIS_X] || 0;
+
+    let rawY =
+      rightPad.axes[RIGHT_AXIS_Y] || 0;
 
 
-    const x =
-      rightPad.axes[
-        RIGHT_AXIS_X
-      ] || 0;
-
-
-    const y =
-      rightPad.axes[
-        RIGHT_AXIS_Y
-      ] || 0;
-
+    /*
+      小さいブレだけ0にする
+    */
 
     if (
-      Math.abs(x)
-      >
-      DEAD_ZONE
+      Math.abs(rawX) < DEAD_ZONE
     ) {
+      rawX = 0;
+    }
 
-      aim1X +=
-        x * AIM_SPEED;
-
+    if (
+      Math.abs(rawY) < DEAD_ZONE
+    ) {
+      rawY = 0;
     }
 
 
-    if (
-      Math.abs(y)
-      >
-      DEAD_ZONE
-    ) {
+    /*
+      入力をなめらかにする
 
-      aim1Y +=
-        y * AIM_SPEED;
+      前の値から
+      今の値へ少しずつ近づける
+    */
 
-    }
+    smoothRightX +=
+      (rawX - smoothRightX)
+      * SMOOTHING;
 
+    smoothRightY +=
+      (rawY - smoothRightY)
+      * SMOOTHING;
+
+
+    /*
+      照準移動
+    */
+
+    aim1X +=
+      smoothRightX
+      * AIM_SPEED;
+
+    aim1Y +=
+      smoothRightY
+      * AIM_SPEED;
+
+
+    /*
+      画面外に行かないように
+    */
 
     aim1X =
       Math.max(
         2,
-        Math.min(
-          98,
-          aim1X
-        )
+        Math.min(98, aim1X)
       );
-
 
     aim1Y =
       Math.max(
         3,
-        Math.min(
-          97,
-          aim1Y
-        )
+        Math.min(97, aim1Y)
       );
 
 
     crosshair1.style.left =
       aim1X + "%";
 
-
     crosshair1.style.top =
       aim1Y + "%";
 
 
-    const shootPressed =
+    /*
+      Xボタンで発射
+    */
 
+    const shootPressed =
       rightPad.buttons[
         RIGHT_SHOOT_BUTTON
-      ]?.pressed
-      ||
-      false;
+      ]?.pressed || false;
 
 
     if (
-
-      shootPressed
-
-      &&
-
+      shootPressed &&
       !previousRightShoot
-
     ) {
 
-      shootWithCrosshair(
-        1
-      );
+      shootWithCrosshair(1);
 
     }
 
@@ -2096,97 +2103,86 @@ function updateControllers() {
      左Joy-Con
   ===================================== */
 
-  if (
-    leftPad
-  ) {
+  if (leftPad) {
 
+    let rawX =
+      leftPad.axes[LEFT_AXIS_X] || 0;
 
-    const x =
-      leftPad.axes[
-        LEFT_AXIS_X
-      ] || 0;
-
-
-    const y =
-      leftPad.axes[
-        LEFT_AXIS_Y
-      ] || 0;
+    let rawY =
+      leftPad.axes[LEFT_AXIS_Y] || 0;
 
 
     if (
-      Math.abs(x)
-      >
-      DEAD_ZONE
+      Math.abs(rawX) < DEAD_ZONE
     ) {
-
-      aim2X +=
-        x * AIM_SPEED;
-
+      rawX = 0;
     }
-
 
     if (
-      Math.abs(y)
-      >
-      DEAD_ZONE
+      Math.abs(rawY) < DEAD_ZONE
     ) {
-
-      aim2Y +=
-        y * AIM_SPEED;
-
+      rawY = 0;
     }
+
+
+    /*
+      左Joy-Conもなめらかに
+    */
+
+    smoothLeftX +=
+      (rawX - smoothLeftX)
+      * SMOOTHING;
+
+    smoothLeftY +=
+      (rawY - smoothLeftY)
+      * SMOOTHING;
+
+
+    aim2X +=
+      smoothLeftX
+      * AIM_SPEED;
+
+    aim2Y +=
+      smoothLeftY
+      * AIM_SPEED;
 
 
     aim2X =
       Math.max(
         2,
-        Math.min(
-          98,
-          aim2X
-        )
+        Math.min(98, aim2X)
       );
-
 
     aim2Y =
       Math.max(
         3,
-        Math.min(
-          97,
-          aim2Y
-        )
+        Math.min(97, aim2Y)
       );
 
 
     crosshair2.style.left =
       aim2X + "%";
 
-
     crosshair2.style.top =
       aim2Y + "%";
 
 
-    const shootPressed =
+    /*
+      ▼ボタンで発射
+    */
 
+    const shootPressed =
       leftPad.buttons[
         LEFT_SHOOT_BUTTON
-      ]?.pressed
-      ||
-      false;
+      ]?.pressed || false;
 
 
     if (
-
-      shootPressed
-
-      &&
-
+      shootPressed &&
       !previousLeftShoot
-
     ) {
 
-      shootWithCrosshair(
-        2
-      );
+      shootWithCrosshair(2);
 
     }
 
