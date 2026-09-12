@@ -1728,42 +1728,124 @@ function showRandomAlien() {
 
 function startSpawning() {
 
-  function nextSpawn() {
+  /*
+    30秒間で30回出現させる
+    0秒、1秒、2秒 ... 29秒
+
+    合計80体になるようにする
+
+    2体同時 × 15回 = 30体
+    3体同時 × 10回 = 30体
+    4体同時 ×  5回 = 20体
+
+    合計 = 80体
+  */
+
+  let wavePattern = [];
+
+
+  /* 2体同時を15回 */
+
+  for (
+    let i = 0;
+    i < 15;
+    i++
+  ) {
+
+    wavePattern.push(2);
+
+  }
+
+
+  /* 3体同時を10回 */
+
+  for (
+    let i = 0;
+    i < 10;
+    i++
+  ) {
+
+    wavePattern.push(3);
+
+  }
+
+
+  /* 4体同時を5回 */
+
+  for (
+    let i = 0;
+    i < 5;
+    i++
+  ) {
+
+    wavePattern.push(4);
+
+  }
+
+
+  /*
+    2・3・4体の順番も
+    毎ゲームランダムにする
+  */
+
+  for (
+    let i = wavePattern.length - 1;
+    i > 0;
+    i--
+  ) {
+
+    const j =
+      Math.floor(
+        Math.random() * (i + 1)
+      );
+
+
+    [
+      wavePattern[i],
+      wavePattern[j]
+    ]
+    =
+    [
+      wavePattern[j],
+      wavePattern[i]
+    ];
+
+  }
+
+
+  let waveIndex = 0;
+
+
+  function nextWave() {
+
 
     if (!gameRunning) {
       return;
     }
 
-    if (characterIndex >= characterBag.length) {
+
+    if (
+      waveIndex >= wavePattern.length
+    ) {
+
       return;
+
     }
 
 
     /*
-      1回で何体出すか
-
-      2体が多め
-      ときどき3体
-      たまに4体
+      今回出す数
     */
 
-    const random = Math.random();
+    const spawnCount =
+      wavePattern[waveIndex];
 
-    let spawnCount;
 
-    if (random < 0.55) {
-      spawnCount = 2;
-    }
-    else if (random < 0.88) {
-      spawnCount = 3;
-    }
-    else {
-      spawnCount = 4;
-    }
+    waveIndex++;
 
 
     /*
-      同時出現
+      2〜4体をほぼ同時に出す
     */
 
     for (
@@ -1772,47 +1854,52 @@ function startSpawning() {
       i++
     ) {
 
+
       if (
-        characterIndex >= characterBag.length
+        characterIndex
+        >=
+        characterBag.length
       ) {
+
         break;
+
       }
 
+
       /*
-        完全同時だと固く見えるので
-        少しだけズラして出す
+        完全同時より
+        少しだけ時間をずらして
+        ひょこひょこ感を出す
       */
 
       setTimeout(
         showRandomAlien,
-        i * 70
+        i * 60
       );
 
     }
 
 
     /*
-      次のグループ出現
+      1秒後に次のグループ
 
-      かなりテンポ速め
+      最後は29秒台に出る
     */
-
-    const nextTime =
-      550
-      +
-      Math.random() * 250;
-
 
     spawnTimer =
       setTimeout(
-        nextSpawn,
-        nextTime
+        nextWave,
+        1000
       );
 
   }
 
 
-  nextSpawn();
+  /*
+    0秒からスタート
+  */
+
+  nextWave();
 
 }
 
