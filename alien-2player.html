@@ -2515,31 +2515,50 @@ function hitAlien(
     少し待って消す
   */
 
-  setTimeout(
-
-    () => {
-
-
-      hole.classList.remove(
-        "active"
-      );
+  const hitSpawnId =
+  hole.dataset.spawnId;
 
 
-      hole.classList.remove(
-        "rare"
-      );
+setTimeout(
+
+  () => {
 
 
-      alien.classList.remove(
-        "shot"
-      );
+    /*
+      撃ったあと200msの間に
+      別キャラが同じ穴に出ていたら
+      その新しいキャラは消さない
+    */
+
+    if (
+      hole.dataset.spawnId !== hitSpawnId
+    ) {
+
+      return;
+
+    }
 
 
-    },
+    hole.classList.remove(
+      "active"
+    );
 
-    200
 
-  );
+    hole.classList.remove(
+      "rare"
+    );
+
+
+    alien.classList.remove(
+      "shot"
+    );
+
+
+  },
+
+  200
+
+);
 
 }
 
