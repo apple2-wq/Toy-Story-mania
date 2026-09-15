@@ -1,0 +1,3396 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+
+<title>ALIEN STAGE</title>
+
+
+<style>
+
+/* ================================
+   基本
+================================ */
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+
+  background: #080319;
+
+  font-family: Arial, sans-serif;
+
+  user-select: none;
+}
+
+
+/* ================================
+   ゲーム全体
+================================ */
+
+#gameWrapper {
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  background: #080319;
+}
+
+
+#game {
+  position: relative;
+
+  width: min(100vw, 177.78vh);
+
+  aspect-ratio: 16 / 9;
+
+  overflow: hidden;
+
+  background-image:
+    url("background.jpeg");
+
+  background-size:
+    100% 100%;
+
+  background-position:
+    center;
+
+  background-repeat:
+    no-repeat;
+
+  touch-action: manipulation;
+}
+
+
+/* ================================
+   HUD
+================================ */
+
+#hud {
+  position: absolute;
+
+  z-index: 1000;
+
+  top: 2%;
+  left: 50%;
+
+  transform:
+    translateX(-50%);
+
+  width: 72%;
+
+  display: flex;
+
+  justify-content:
+    space-between;
+
+  align-items: center;
+
+  pointer-events: none;
+}
+
+
+.hudBox {
+  background:
+    rgba(15,5,55,0.88);
+
+  border:
+    3px solid #ffc93b;
+
+  border-radius:
+    14px;
+
+  padding:
+    7px 14px;
+
+  color: white;
+
+  font-weight: 900;
+
+  font-size:
+    clamp(11px,1.7vw,24px);
+
+  box-shadow:
+    0 0 12px #ff9f1c,
+    inset 0 0 10px #40149c;
+}
+
+
+#score1 {
+  color: #55eaff;
+}
+
+
+#score2 {
+  color: #ff6bba;
+}
+
+
+#time {
+  color: #ffe44d;
+}
+
+
+/* ================================
+   穴
+================================ */
+
+.hole {
+  position: absolute;
+
+  left: var(--x);
+  top: var(--y);
+
+  width: var(--size);
+
+  height:
+    calc(var(--size) * 2.2);
+
+  transform:
+    translate(-50%,-100%);
+
+  pointer-events: none;
+
+  overflow: visible;
+
+  z-index: 20;
+}
+
+
+/* ================================
+   エイリアン
+================================ */
+
+.alien {
+  position: absolute;
+
+  width: 140%;
+
+  height: auto;
+
+  left: 50%;
+  bottom: 0;
+
+  transform:
+    translate(-50%,70%)
+    scale(0.85);
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  pointer-events: none;
+
+  filter:
+    drop-shadow(
+      0 5px 5px
+      rgba(0,0,0,0.45)
+    );
+}
+
+
+/* ================================
+   出現
+================================ */
+
+.hole.active .alien {
+  visibility: visible;
+
+  pointer-events: auto;
+
+  animation:
+    alienPop
+    0.38s
+    cubic-bezier(0.2,0.9,0.3,1.25)
+    forwards;
+}
+
+
+@keyframes alienPop {
+
+  0% {
+    transform:
+      translate(-50%,70%)
+      scale(0.82);
+
+    opacity: 0;
+  }
+
+  45% {
+    transform:
+      translate(-50%,-12%)
+      scale(1.07);
+
+    opacity: 1;
+  }
+
+  70% {
+    transform:
+      translate(-50%,-2%)
+      scale(0.98);
+
+    opacity: 1;
+  }
+
+  100% {
+    transform:
+      translate(-50%,-4%)
+      scale(1);
+
+    opacity: 1;
+  }
+
+}
+
+
+/* ================================
+   撃たれた時
+================================ */
+
+.alien.shot {
+  animation:
+    alienShot
+    0.20s
+    forwards !important;
+
+  pointer-events: none;
+}
+
+
+@keyframes alienShot {
+
+  0% {
+    transform:
+      translate(-50%,-4%)
+      scale(1);
+
+    opacity: 1;
+  }
+
+  100% {
+    transform:
+      translate(-50%,45%)
+      scale(0.35)
+      rotate(12deg);
+
+    opacity: 0;
+  }
+
+}
+
+
+/* ================================
+   王冠キラキラ
+================================ */
+
+.hole.rare .alien {
+  filter:
+    drop-shadow(0 0 5px white)
+    drop-shadow(0 0 10px #ffe66d)
+    drop-shadow(0 0 18px #ff87e8);
+}
+
+
+.hole.rare.active::before,
+.hole.rare.active::after {
+  position: absolute;
+
+  z-index: 100;
+
+  content: "✦";
+
+  pointer-events: none;
+
+  color: #fff4a3;
+
+  text-shadow:
+    0 0 4px white,
+    0 0 9px #ffd84d,
+    0 0 16px #ff7dea;
+}
+
+
+.hole.rare.active::before {
+  left: -5%;
+  top: -5%;
+
+  font-size: 26px;
+
+  animation:
+    sparkleLeft
+    0.75s
+    infinite;
+}
+
+
+.hole.rare.active::after {
+  right: -10%;
+  top: 5%;
+
+  font-size: 20px;
+
+  animation:
+    sparkleRight
+    0.95s
+    infinite;
+}
+
+
+@keyframes sparkleLeft {
+
+  0% {
+    opacity: 0;
+
+    transform:
+      translateY(10px)
+      scale(0.3)
+      rotate(0deg);
+  }
+
+  45% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-7px,-17px)
+      scale(1.3)
+      rotate(35deg);
+  }
+
+}
+
+
+@keyframes sparkleRight {
+
+  0% {
+    opacity: 0;
+
+    transform:
+      translateY(10px)
+      scale(0.4);
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(8px,-14px)
+      scale(1.2)
+      rotate(-30deg);
+  }
+
+}
+
+
+/* ================================
+   照準
+================================ */
+
+.crosshair {
+  position: absolute;
+
+  z-index: 4500;
+
+  transform:
+    translate(-50%,-50%);
+
+  font-size:
+    clamp(40px,5vw,65px);
+
+  font-weight: 900;
+
+  line-height: 1;
+
+  pointer-events: none;
+}
+
+
+/* 右Joy-Con / P1 */
+
+#crosshair1 {
+  left: 40%;
+  top: 55%;
+
+  color: #55eaff;
+
+  text-shadow:
+    0 0 4px black,
+    0 0 10px #55eaff,
+    0 0 18px #55eaff;
+}
+
+
+/* 左Joy-Con / P2 */
+
+#crosshair2 {
+  left: 60%;
+  top: 55%;
+
+  color: #ff6bba;
+
+  text-shadow:
+    0 0 4px black,
+    0 0 10px #ff6bba,
+    0 0 18px #ff6bba;
+}
+
+
+/* ================================
+   得点POP
+================================ */
+
+.pointPopup {
+  position: absolute;
+
+  z-index: 3500;
+
+  pointer-events: none;
+
+  font-weight: 900;
+
+  font-size:
+    clamp(20px,4vw,48px);
+
+  text-shadow:
+    2px 2px 0 #281063,
+    0 0 8px white;
+
+  transform:
+    translate(-50%,-50%);
+
+  animation:
+    pointPopupAnimation
+    0.8s
+    forwards;
+}
+
+
+@keyframes pointPopupAnimation {
+
+  0% {
+    opacity: 0;
+
+    transform:
+      translate(-50%,-50%)
+      scale(0.3);
+  }
+
+  30% {
+    opacity: 1;
+
+    transform:
+      translate(-50%,-80%)
+      scale(1.25);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%,-180%)
+      scale(1);
+  }
+
+}
+
+
+/* ================================
+   発射エフェクト
+================================ */
+
+.shotEffect {
+  position: absolute;
+
+  z-index: 4000;
+
+  pointer-events: none;
+
+  width: 18px;
+  height: 18px;
+
+  border-radius: 50%;
+
+  border:
+    4px solid white;
+
+  box-shadow:
+    0 0 8px white,
+    0 0 18px #ffe332,
+    0 0 30px #ff9c22;
+
+  transform:
+    translate(-50%,-50%);
+
+  animation:
+    shotEffectAnimation
+    0.3s
+    forwards;
+}
+
+
+@keyframes shotEffectAnimation {
+
+  from {
+    width: 14px;
+    height: 14px;
+
+    opacity: 1;
+  }
+
+  to {
+    width: 65px;
+    height: 65px;
+
+    opacity: 0;
+  }
+
+}
+
+
+/* ================================
+   START / GAME OVER
+================================ */
+
+#startScreen,
+#gameOverScreen {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 5000;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+  align-items: center;
+
+  text-align: center;
+
+  color: white;
+
+  background:
+    rgba(7,2,35,0.82);
+}
+
+
+#gameOverScreen {
+  display: none;
+}
+
+
+.gameTitle {
+  font-size:
+    clamp(32px,7vw,85px);
+
+  font-weight: 900;
+
+  line-height: 0.95;
+
+  color: #ffdc3e;
+
+  text-shadow:
+    5px 5px 0 #6d20a5,
+    0 0 20px #ff9224;
+}
+
+
+.description {
+  margin: 20px;
+
+  font-size:
+    clamp(13px,2vw,25px);
+
+  font-weight: bold;
+}
+
+
+.gameButton {
+  border:
+    4px solid #ffdc42;
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      #8046ef,
+      #41189f
+    );
+
+  color: white;
+
+  font-weight: 900;
+
+  font-size:
+    clamp(16px,2.5vw,30px);
+
+  padding:
+    13px 35px;
+
+  box-shadow:
+    0 7px 0 #281063,
+    0 0 18px #ffb62d;
+
+  cursor: pointer;
+}
+
+
+.gameButton:active {
+  transform:
+    translateY(5px);
+}
+
+
+.finalScore {
+  font-size:
+    clamp(20px,4vw,50px);
+
+  margin: 6px;
+
+  font-weight: 900;
+}
+
+
+.p1Final {
+  color: #55eaff;
+}
+
+
+.p2Final {
+  color: #ff6bba;
+}
+
+
+#winnerText {
+  margin: 12px;
+
+  font-size:
+    clamp(18px,3vw,36px);
+
+  font-weight: 900;
+
+  color: #ffe44d;
+}
+
+
+@media
+(max-width: 700px) {
+
+  #hud {
+    width: 80%;
+  }
+
+  .hudBox {
+    padding:
+      4px 7px;
+  }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div id="gameWrapper">
+
+<div id="game">
+
+
+<div id="hud">
+
+  <div class="hudBox">
+    P1
+    <span id="score1">0</span>
+  </div>
+
+  <div class="hudBox">
+    TIME
+    <span id="time">30</span>
+  </div>
+
+  <div class="hudBox">
+    P2
+    <span id="score2">0</span>
+  </div>
+
+</div>
+
+
+<div id="holes"></div>
+
+
+<div
+  id="crosshair1"
+  class="crosshair"
+>
+  ＋
+</div>
+
+
+<div
+  id="crosshair2"
+  class="crosshair"
+>
+  ＋
+</div>
+
+
+<div id="startScreen">
+
+  <div class="gameTitle">
+    ALIEN
+    <br>
+    SHOOTING
+  </div>
+
+  <div class="description">
+
+    🎮 2 PLAYER 🎮
+    <br><br>
+
+    右Joy-Con：Xで発射
+    <br>
+
+    左Joy-Con：▼で発射
+    <br><br>
+
+    🟢 500　
+    🔵 1000　
+    🟣 2000　
+    👑 5000
+
+  </div>
+
+  <button
+    id="startButton"
+    class="gameButton"
+    type="button"
+  >
+    GAME START
+  </button>
+
+</div>
+
+
+<div id="gameOverScreen">
+
+  <div class="gameTitle">
+    TIME UP!
+  </div>
+
+  <div class="finalScore p1Final">
+
+    PLAYER 1
+
+    <span id="finalScore1">
+      0
+    </span>
+
+  </div>
+
+  <div class="finalScore p2Final">
+
+    PLAYER 2
+
+    <span id="finalScore2">
+      0
+    </span>
+
+  </div>
+
+  <div id="winnerText"></div>
+
+  <button
+    id="restartButton"
+    class="gameButton"
+    type="button"
+  >
+    PLAY AGAIN
+  </button>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<script>
+
+/* ================================
+   ゲーム設定
+================================ */
+
+const GAME_TIME =
+  30;
+
+
+/*
+  照準速度
+*/
+
+const AIM_SPEED =
+  1.9;
+
+
+/*
+  中心付近のブレを無視
+*/
+
+const DEAD_ZONE =
+  0.08;
+
+
+/*
+  方向転換をかなり速め
+*/
+
+const SMOOTHING =
+  0.72;
+
+
+const STOP_SMOOTHING =
+  0.88;
+
+
+/* ================================
+   Joy-Con設定
+================================ */
+
+/* 右Joy-Con */
+
+const RIGHT_AXIS_X =
+  2;
+
+const RIGHT_AXIS_Y =
+  3;
+
+const RIGHT_SHOOT_BUTTON =
+  3;
+
+
+/* 左Joy-Con */
+
+const LEFT_AXIS_X =
+  0;
+
+const LEFT_AXIS_Y =
+  1;
+
+const LEFT_SHOOT_BUTTON =
+  13;
+
+
+/* ================================
+   キャラクター
+================================ */
+
+const CHARACTER_TYPES = {
+
+  green: {
+    image:
+      "alien-green.png",
+
+    points:
+      500,
+
+    count:
+      48,
+
+    rare:
+      false
+  },
+
+  blue: {
+    image:
+      "alien-blue.png",
+
+    points:
+      1000,
+
+    count:
+      20,
+
+    rare:
+      false
+  },
+
+  purple: {
+    image:
+      "alien-purple.png",
+
+    points:
+      2000,
+
+    count:
+      8,
+
+    rare:
+      false
+  },
+
+  crown: {
+    image:
+      "alien-crown.png",
+
+    points:
+      5000,
+
+    count:
+      4,
+
+    rare:
+      true
+  }
+
+};
+
+
+/*
+  合計理論MAX
+
+  48×500
+  +20×1000
+  +8×2000
+  +4×5000
+  = 80000
+*/
+
+
+/* ================================
+   穴位置
+================================ */
+
+const holeData = [
+
+  {
+    x: 47.92,
+    y: 38.5,
+    size: 8
+  },
+
+  {
+    x: 32.80,
+    y: 36.71,
+    size: 7
+  },
+
+  {
+    x: 63.05,
+    y: 36.87,
+    size: 7
+  },
+
+  {
+    x: 29.37,
+    y: 43.73,
+    size: 8
+  },
+
+  {
+    x: 67.86,
+    y: 43.71,
+    size: 8
+  },
+
+  {
+    x: 21.77,
+    y: 56.21,
+    size: 8
+  },
+
+  {
+    x: 77.01,
+    y: 55.83,
+    size: 8
+  },
+
+  {
+    x: 47.76,
+    y: 59.96,
+    size: 8
+  },
+
+  {
+    x: 28.99,
+    y: 68.79,
+    size: 8
+  },
+
+  {
+    x: 47.62,
+    y: 71.19,
+    size: 8
+  },
+
+  {
+    x: 68.82,
+    y: 68.68,
+    size: 8
+  },
+
+  {
+    x: 36.30,
+    y: 82.41,
+    size: 8
+  },
+
+  {
+    x: 47.19,
+    y: 82.30,
+    size: 8
+  },
+
+  {
+    x: 57.41,
+    y: 82.28,
+    size: 8
+  },
+
+  {
+    x: 66.28,
+    y: 81.97,
+    size: 8
+  }
+
+];
+
+
+/* ================================
+   状態
+================================ */
+
+let score1 =
+  0;
+
+let score2 =
+  0;
+
+let timeLeft =
+  GAME_TIME;
+
+let gameRunning =
+  false;
+
+let timerInterval =
+  null;
+
+let spawnTimer =
+  null;
+
+
+let characterBag =
+  [];
+
+let characterIndex =
+  0;
+
+
+/* 照準位置 */
+
+let aim1X =
+  40;
+
+let aim1Y =
+  55;
+
+let aim2X =
+  60;
+
+let aim2Y =
+  55;
+
+
+/* 滑らか移動用 */
+
+let smoothRightX =
+  0;
+
+let smoothRightY =
+  0;
+
+let smoothLeftX =
+  0;
+
+let smoothLeftY =
+  0;
+
+
+/* 発射状態 */
+
+let previousRightShoot =
+  false;
+
+let previousLeftShoot =
+  false;
+
+
+/* ================================
+   HTML取得
+================================ */
+
+const game =
+  document.getElementById(
+    "game"
+  );
+
+
+const holesContainer =
+  document.getElementById(
+    "holes"
+  );
+
+
+const scoreText1 =
+  document.getElementById(
+    "score1"
+  );
+
+
+const scoreText2 =
+  document.getElementById(
+    "score2"
+  );
+
+
+const timeText =
+  document.getElementById(
+    "time"
+  );
+
+
+const startScreen =
+  document.getElementById(
+    "startScreen"
+  );
+
+
+const gameOverScreen =
+  document.getElementById(
+    "gameOverScreen"
+  );
+
+
+const startButton =
+  document.getElementById(
+    "startButton"
+  );
+
+
+const restartButton =
+  document.getElementById(
+    "restartButton"
+  );
+
+
+const finalScore1 =
+  document.getElementById(
+    "finalScore1"
+  );
+
+
+const finalScore2 =
+  document.getElementById(
+    "finalScore2"
+  );
+
+
+const winnerText =
+  document.getElementById(
+    "winnerText"
+  );
+
+
+const crosshair1 =
+  document.getElementById(
+    "crosshair1"
+  );
+
+
+const crosshair2 =
+  document.getElementById(
+    "crosshair2"
+  );
+
+
+/* ================================
+   キャラクター袋
+================================ */
+
+function makeCharacterBag() {
+
+  characterBag =
+    [];
+
+
+  Object.entries(
+    CHARACTER_TYPES
+  ).forEach(
+
+    ([type,data]) => {
+
+      for (
+        let i = 0;
+        i < data.count;
+        i++
+      ) {
+
+        characterBag.push({
+
+          type:
+            type,
+
+          image:
+            data.image,
+
+          points:
+            data.points,
+
+          rare:
+            data.rare
+
+        });
+
+      }
+
+    }
+
+  );
+
+
+  /*
+    シャッフル
+  */
+
+  for (
+    let i =
+      characterBag.length - 1;
+
+    i > 0;
+
+    i--
+  ) {
+
+    const j =
+      Math.floor(
+        Math.random()
+        *
+        (i + 1)
+      );
+
+
+    [
+      characterBag[i],
+      characterBag[j]
+    ]
+    =
+    [
+      characterBag[j],
+      characterBag[i]
+    ];
+
+  }
+
+
+  characterIndex =
+    0;
+
+}
+
+
+/* ================================
+   穴作成
+================================ */
+
+function createHoles() {
+
+  holesContainer.innerHTML =
+    "";
+
+
+  holeData.forEach(
+
+    (data,index) => {
+
+      const hole =
+        document.createElement(
+          "div"
+        );
+
+
+      hole.className =
+        "hole";
+
+
+      hole.style.setProperty(
+        "--x",
+        data.x + "%"
+      );
+
+
+      hole.style.setProperty(
+        "--y",
+        data.y + "%"
+      );
+
+
+      hole.style.setProperty(
+        "--size",
+        data.size + "%"
+      );
+
+
+      hole.dataset.index =
+        index;
+
+
+      const alien =
+        document.createElement(
+          "img"
+        );
+
+
+      alien.className =
+        "alien";
+
+
+      alien.src =
+        "alien-green.png";
+
+
+      alien.alt =
+        "target";
+
+
+      alien.draggable =
+        false;
+
+
+      hole.appendChild(
+        alien
+      );
+
+
+      holesContainer.appendChild(
+        hole
+      );
+
+    }
+
+  );
+
+}
+
+
+/* ================================
+   キャラ出現
+================================ */
+
+function showRandomAlien() {
+
+  if (!gameRunning) {
+    return;
+  }
+
+
+  if (
+    characterIndex
+    >=
+    characterBag.length
+  ) {
+    return;
+  }
+
+
+  const holes =
+    Array.from(
+
+      document.querySelectorAll(
+        ".hole"
+      )
+
+    );
+
+
+  const emptyHoles =
+    holes.filter(
+
+      hole =>
+        !hole.classList.contains(
+          "active"
+        )
+
+    );
+
+
+  if (
+    emptyHoles.length === 0
+  ) {
+
+    return;
+
+  }
+
+
+  const hole =
+
+    emptyHoles[
+      Math.floor(
+        Math.random()
+        *
+        emptyHoles.length
+      )
+    ];
+
+
+  const alien =
+    hole.querySelector(
+      ".alien"
+    );
+
+
+  const character =
+    characterBag[
+      characterIndex
+    ];
+
+
+  characterIndex++;
+
+
+  /*
+    今回の出現専用ID
+  */
+
+  const spawnId =
+    Date.now()
+    +
+    "-"
+    +
+    Math.random();
+
+
+  hole.dataset.spawnId =
+    spawnId;
+
+
+  /*
+    キャラ設定
+  */
+
+  alien.src =
+    character.image;
+
+
+  alien.dataset.points =
+    character.points;
+
+
+  alien.dataset.type =
+    character.type;
+
+
+  alien.classList.remove(
+    "shot"
+  );
+
+
+  hole.classList.remove(
+    "rare"
+  );
+
+
+  if (
+    character.rare
+  ) {
+
+    hole.classList.add(
+      "rare"
+    );
+
+  }
+
+
+  hole.classList.add(
+    "active"
+  );
+
+
+  /*
+    出ている時間
+  */
+
+  const stayTime =
+    1150;
+
+
+  setTimeout(
+
+    () => {
+
+      /*
+        古いタイマーなら無視
+      */
+
+      if (
+        hole.dataset.spawnId
+        !==
+        spawnId
+      ) {
+
+        return;
+
+      }
+
+
+      if (
+        hole.classList.contains(
+          "active"
+        )
+      ) {
+
+        hole.classList.remove(
+          "active"
+        );
+
+
+        hole.classList.remove(
+          "rare"
+        );
+
+
+        alien.classList.remove(
+          "shot"
+        );
+
+      }
+
+    },
+
+    stayTime
+
+  );
+
+}
+
+
+/* ================================
+   30秒間出現
+================================ */
+
+function startSpawning() {
+
+  /*
+    合計80体
+
+    2体×15回 = 30
+    3体×10回 = 30
+    4体×5回  = 20
+
+    合計80
+  */
+
+  let wavePattern =
+    [];
+
+
+  for (
+    let i = 0;
+    i < 15;
+    i++
+  ) {
+
+    wavePattern.push(
+      2
+    );
+
+  }
+
+
+  for (
+    let i = 0;
+    i < 10;
+    i++
+  ) {
+
+    wavePattern.push(
+      3
+    );
+
+  }
+
+
+  for (
+    let i = 0;
+    i < 5;
+    i++
+  ) {
+
+    wavePattern.push(
+      4
+    );
+
+  }
+
+
+  /*
+    出る数の順番もランダム
+  */
+
+  for (
+    let i =
+      wavePattern.length - 1;
+
+    i > 0;
+
+    i--
+  ) {
+
+    const j =
+      Math.floor(
+        Math.random()
+        *
+        (i + 1)
+      );
+
+
+    [
+      wavePattern[i],
+      wavePattern[j]
+    ]
+    =
+    [
+      wavePattern[j],
+      wavePattern[i]
+    ];
+
+  }
+
+
+  let waveIndex =
+    0;
+
+
+  function nextWave() {
+
+    if (!gameRunning) {
+      return;
+    }
+
+
+    if (
+      waveIndex
+      >=
+      wavePattern.length
+    ) {
+
+      return;
+
+    }
+
+
+    const spawnCount =
+      wavePattern[
+        waveIndex
+      ];
+
+
+    waveIndex++;
+
+
+    for (
+      let i = 0;
+      i < spawnCount;
+      i++
+    ) {
+
+      if (
+        characterIndex
+        >=
+        characterBag.length
+      ) {
+
+        break;
+
+      }
+
+
+      setTimeout(
+
+        showRandomAlien,
+
+        i * 60
+
+      );
+
+    }
+
+
+    /*
+      毎秒出す
+      最後は29秒台
+    */
+
+    spawnTimer =
+      setTimeout(
+        nextWave,
+        1000
+      );
+
+  }
+
+
+  nextWave();
+
+}
+
+
+/* ================================
+   Joy-Con取得
+================================ */
+
+function getConnectedPads() {
+
+  return Array.from(
+    navigator.getGamepads()
+  ).filter(
+    pad =>
+      pad !== null
+  );
+
+}
+
+
+/* ================================
+   右Joy-Con
+================================ */
+
+function getRightPad() {
+
+  const pads =
+    getConnectedPads();
+
+
+  const rightPad =
+    pads.find(
+
+      pad => {
+
+        const name =
+          pad.id.toLowerCase();
+
+
+        return (
+
+          name.includes(
+            "joy-con (r)"
+          )
+
+          ||
+
+          name.includes(
+            "joy-con r"
+          )
+
+          ||
+
+          name.includes(
+            "right"
+          )
+
+        );
+
+      }
+
+    );
+
+
+  return (
+
+    rightPad
+
+    ||
+
+    pads.find(
+
+      pad =>
+
+        pad.axes.length >= 4
+
+        &&
+
+        pad.buttons.length > 3
+
+    )
+
+    ||
+
+    null
+
+  );
+
+}
+
+
+/* ================================
+   左Joy-Con
+================================ */
+
+function getLeftPad() {
+
+  const pads =
+    getConnectedPads();
+
+
+  const leftPad =
+    pads.find(
+
+      pad => {
+
+        const name =
+          pad.id.toLowerCase();
+
+
+        return (
+
+          name.includes(
+            "joy-con (l)"
+          )
+
+          ||
+
+          name.includes(
+            "joy-con l"
+          )
+
+          ||
+
+          name.includes(
+            "left"
+          )
+
+        );
+
+      }
+
+    );
+
+
+  return (
+
+    leftPad
+
+    ||
+
+    pads.find(
+
+      pad =>
+
+        pad.axes.length >= 2
+
+        &&
+
+        pad.buttons.length > 13
+
+    )
+
+    ||
+
+    null
+
+  );
+
+}
+
+
+/* ================================
+   スムーズ移動
+================================ */
+
+function smoothAxis(
+  current,
+  target
+) {
+
+  const amount =
+
+    Math.abs(target)
+    <
+    DEAD_ZONE
+
+      ? STOP_SMOOTHING
+
+      : SMOOTHING;
+
+
+  const next =
+
+    current
+
+    +
+
+    (
+      target
+      -
+      current
+    )
+
+    *
+    amount;
+
+
+  if (
+    Math.abs(next)
+    <
+    0.01
+  ) {
+
+    return 0;
+
+  }
+
+
+  return next;
+
+}
+
+
+/* ================================
+   Joy-Con更新
+================================ */
+
+function updateControllers() {
+
+  const rightPad =
+    getRightPad();
+
+
+  const leftPad =
+    getLeftPad();
+
+
+  /* ----------------
+     P1 右Joy-Con
+  ---------------- */
+
+  if (
+    rightPad
+  ) {
+
+    let rawX =
+      rightPad.axes[
+        RIGHT_AXIS_X
+      ] || 0;
+
+
+    let rawY =
+      rightPad.axes[
+        RIGHT_AXIS_Y
+      ] || 0;
+
+
+    if (
+      Math.abs(rawX)
+      <
+      DEAD_ZONE
+    ) {
+
+      rawX =
+        0;
+
+    }
+
+
+    if (
+      Math.abs(rawY)
+      <
+      DEAD_ZONE
+    ) {
+
+      rawY =
+        0;
+
+    }
+
+
+    smoothRightX =
+      smoothAxis(
+        smoothRightX,
+        rawX
+      );
+
+
+    smoothRightY =
+      smoothAxis(
+        smoothRightY,
+        rawY
+      );
+
+
+    aim1X +=
+      smoothRightX
+      *
+      AIM_SPEED;
+
+
+    aim1Y +=
+      smoothRightY
+      *
+      AIM_SPEED;
+
+
+    aim1X =
+      Math.max(
+        2,
+        Math.min(
+          98,
+          aim1X
+        )
+      );
+
+
+    aim1Y =
+      Math.max(
+        3,
+        Math.min(
+          97,
+          aim1Y
+        )
+      );
+
+
+    crosshair1.style.left =
+      aim1X
+      +
+      "%";
+
+
+    crosshair1.style.top =
+      aim1Y
+      +
+      "%";
+
+
+    const shootPressed =
+
+      rightPad.buttons[
+        RIGHT_SHOOT_BUTTON
+      ]?.pressed
+
+      ||
+
+      false;
+
+
+    if (
+
+      shootPressed
+
+      &&
+
+      !previousRightShoot
+
+    ) {
+
+      shootWithCrosshair(
+        1
+      );
+
+    }
+
+
+    previousRightShoot =
+      shootPressed;
+
+  }
+
+
+  /* ----------------
+     P2 左Joy-Con
+  ---------------- */
+
+  if (
+    leftPad
+  ) {
+
+    let rawX =
+      leftPad.axes[
+        LEFT_AXIS_X
+      ] || 0;
+
+
+    let rawY =
+      leftPad.axes[
+        LEFT_AXIS_Y
+      ] || 0;
+
+
+    if (
+      Math.abs(rawX)
+      <
+      DEAD_ZONE
+    ) {
+
+      rawX =
+        0;
+
+    }
+
+
+    if (
+      Math.abs(rawY)
+      <
+      DEAD_ZONE
+    ) {
+
+      rawY =
+        0;
+
+    }
+
+
+    smoothLeftX =
+      smoothAxis(
+        smoothLeftX,
+        rawX
+      );
+
+
+    smoothLeftY =
+      smoothAxis(
+        smoothLeftY,
+        rawY
+      );
+
+
+    aim2X +=
+      smoothLeftX
+      *
+      AIM_SPEED;
+
+
+    aim2Y +=
+      smoothLeftY
+      *
+      AIM_SPEED;
+
+
+    aim2X =
+      Math.max(
+        2,
+        Math.min(
+          98,
+          aim2X
+        )
+      );
+
+
+    aim2Y =
+      Math.max(
+        3,
+        Math.min(
+          97,
+          aim2Y
+        )
+      );
+
+
+    crosshair2.style.left =
+      aim2X
+      +
+      "%";
+
+
+    crosshair2.style.top =
+      aim2Y
+      +
+      "%";
+
+
+    const shootPressed =
+
+      leftPad.buttons[
+        LEFT_SHOOT_BUTTON
+      ]?.pressed
+
+      ||
+
+      false;
+
+
+    if (
+
+      shootPressed
+
+      &&
+
+      !previousLeftShoot
+
+    ) {
+
+      shootWithCrosshair(
+        2
+      );
+
+    }
+
+
+    previousLeftShoot =
+      shootPressed;
+
+  }
+
+
+  requestAnimationFrame(
+    updateControllers
+  );
+
+}
+
+
+/* ================================
+   発射
+================================ */
+
+function shootWithCrosshair(
+  player
+) {
+
+  if (!gameRunning) {
+    return;
+  }
+
+
+  const crosshair =
+
+    player === 1
+
+      ? crosshair1
+
+      : crosshair2;
+
+
+  const crosshairRect =
+    crosshair.getBoundingClientRect();
+
+
+  const aimCenterX =
+
+    crosshairRect.left
+
+    +
+
+    crosshairRect.width / 2;
+
+
+  const aimCenterY =
+
+    crosshairRect.top
+
+    +
+
+    crosshairRect.height / 2;
+
+
+  const activeAliens =
+
+    document.querySelectorAll(
+      ".hole.active .alien"
+    );
+
+
+  let hit =
+    false;
+
+
+  for (
+    const alien
+    of activeAliens
+  ) {
+
+    if (
+      alien.classList.contains(
+        "shot"
+      )
+    ) {
+
+      continue;
+
+    }
+
+
+    const rect =
+      alien.getBoundingClientRect();
+
+
+    if (
+
+      aimCenterX >= rect.left
+
+      &&
+
+      aimCenterX <= rect.right
+
+      &&
+
+      aimCenterY >= rect.top
+
+      &&
+
+      aimCenterY <= rect.bottom
+
+    ) {
+
+      const hole =
+        alien.closest(
+          ".hole"
+        );
+
+
+      hitAlien(
+
+        player,
+
+        hole,
+
+        alien,
+
+        aimCenterX,
+
+        aimCenterY
+
+      );
+
+
+      hit =
+        true;
+
+
+      break;
+
+    }
+
+  }
+
+
+  if (
+    !hit
+  ) {
+
+    const gameRect =
+      game.getBoundingClientRect();
+
+
+    showShotEffect(
+
+      aimCenterX
+      -
+      gameRect.left,
+
+      aimCenterY
+      -
+      gameRect.top
+
+    );
+
+  }
+
+}
+
+
+/* ================================
+   命中
+================================ */
+
+function hitAlien(
+
+  player,
+
+  hole,
+
+  alien,
+
+  clientX,
+
+  clientY
+
+) {
+
+  if (
+
+    !gameRunning
+
+    ||
+
+    !hole.classList.contains(
+      "active"
+    )
+
+    ||
+
+    alien.classList.contains(
+      "shot"
+    )
+
+  ) {
+
+    return;
+
+  }
+
+
+  /*
+    二重得点防止
+  */
+
+  alien.classList.add(
+    "shot"
+  );
+
+
+  const points =
+    Number(
+      alien.dataset.points
+    );
+
+
+  if (
+    player === 1
+  ) {
+
+    score1 +=
+      points;
+
+
+    scoreText1.textContent =
+      score1;
+
+  }
+
+  else {
+
+    score2 +=
+      points;
+
+
+    scoreText2.textContent =
+      score2;
+
+  }
+
+
+  playHitSound(
+    points
+  );
+
+
+  const gameRect =
+    game.getBoundingClientRect();
+
+
+  const x =
+    clientX
+    -
+    gameRect.left;
+
+
+  const y =
+    clientY
+    -
+    gameRect.top;
+
+
+  showShotEffect(
+    x,
+    y
+  );
+
+
+  showPoints(
+
+    x,
+
+    y,
+
+    points,
+
+    player
+
+  );
+
+
+  /*
+    今撃ったキャラのID
+  */
+
+  const hitSpawnId =
+    hole.dataset.spawnId;
+
+
+  setTimeout(
+
+    () => {
+
+      /*
+        その間に新しいキャラが
+        同じ穴に出ていたら消さない
+      */
+
+      if (
+        hole.dataset.spawnId
+        !==
+        hitSpawnId
+      ) {
+
+        return;
+
+      }
+
+
+      hole.classList.remove(
+        "active"
+      );
+
+
+      hole.classList.remove(
+        "rare"
+      );
+
+
+      alien.classList.remove(
+        "shot"
+      );
+
+    },
+
+    200
+
+  );
+
+}
+
+
+/* ================================
+   点数表示
+================================ */
+
+function showPoints(
+
+  x,
+
+  y,
+
+  points,
+
+  player
+
+) {
+
+  const popup =
+    document.createElement(
+      "div"
+    );
+
+
+  popup.className =
+    "pointPopup";
+
+
+  popup.textContent =
+
+    "P"
+
+    +
+
+    player
+
+    +
+
+    " +"
+
+    +
+
+    points;
+
+
+  popup.style.color =
+
+    player === 1
+
+      ? "#55eaff"
+
+      : "#ff6bba";
+
+
+  popup.style.left =
+    x + "px";
+
+
+  popup.style.top =
+    y + "px";
+
+
+  game.appendChild(
+    popup
+  );
+
+
+  setTimeout(
+
+    () => {
+
+      popup.remove();
+
+    },
+
+    800
+
+  );
+
+}
+
+
+/* ================================
+   発射エフェクト
+================================ */
+
+function showShotEffect(
+  x,
+  y
+) {
+
+  const effect =
+    document.createElement(
+      "div"
+    );
+
+
+  effect.className =
+    "shotEffect";
+
+
+  effect.style.left =
+    x + "px";
+
+
+  effect.style.top =
+    y + "px";
+
+
+  game.appendChild(
+    effect
+  );
+
+
+  setTimeout(
+
+    () => {
+
+      effect.remove();
+
+    },
+
+    300
+
+  );
+
+}
+
+
+/* ================================
+   効果音
+================================ */
+
+let audioContext =
+  null;
+
+
+function getAudioContext() {
+
+  if (
+    !audioContext
+  ) {
+
+    audioContext =
+
+      new (
+
+        window.AudioContext
+
+        ||
+
+        window.webkitAudioContext
+
+      )();
+
+  }
+
+
+  return audioContext;
+
+}
+
+
+function playTone(
+
+  frequency,
+
+  duration,
+
+  volume = 0.10
+
+) {
+
+  const context =
+    getAudioContext();
+
+
+  const oscillator =
+    context.createOscillator();
+
+
+  const gain =
+    context.createGain();
+
+
+  oscillator.connect(
+    gain
+  );
+
+
+  gain.connect(
+    context.destination
+  );
+
+
+  oscillator.type =
+    "sine";
+
+
+  oscillator.frequency.value =
+    frequency;
+
+
+  gain.gain.setValueAtTime(
+
+    volume,
+
+    context.currentTime
+
+  );
+
+
+  gain.gain.exponentialRampToValueAtTime(
+
+    0.001,
+
+    context.currentTime
+    +
+    duration
+
+  );
+
+
+  oscillator.start();
+
+
+  oscillator.stop(
+
+    context.currentTime
+    +
+    duration
+
+  );
+
+}
+
+
+/* ================================
+   点数別音
+================================ */
+
+function playHitSound(
+  points
+) {
+
+  if (
+    points === 500
+  ) {
+
+    playTone(
+      440,
+      0.12
+    );
+
+  }
+
+
+  else if (
+    points === 1000
+  ) {
+
+    playTone(
+      620,
+      0.15
+    );
+
+  }
+
+
+  else if (
+    points === 2000
+  ) {
+
+    playTone(
+      780,
+      0.12
+    );
+
+
+    setTimeout(
+
+      () =>
+        playTone(
+          980,
+          0.15
+        ),
+
+      90
+
+    );
+
+  }
+
+
+  else if (
+    points === 5000
+  ) {
+
+    playTone(
+      700,
+      0.10
+    );
+
+
+    setTimeout(
+
+      () =>
+        playTone(
+          950,
+          0.10
+        ),
+
+      80
+
+    );
+
+
+    setTimeout(
+
+      () =>
+        playTone(
+          1250,
+          0.10
+        ),
+
+      160
+
+    );
+
+
+    setTimeout(
+
+      () =>
+        playTone(
+          1500,
+          0.22
+        ),
+
+      240
+
+    );
+
+  }
+
+}
+
+
+/* ================================
+   ゲーム開始
+================================ */
+
+function startGame() {
+
+  clearInterval(
+    timerInterval
+  );
+
+
+  clearTimeout(
+    spawnTimer
+  );
+
+
+  score1 =
+    0;
+
+
+  score2 =
+    0;
+
+
+  timeLeft =
+    GAME_TIME;
+
+
+  gameRunning =
+    true;
+
+
+  makeCharacterBag();
+
+
+  scoreText1.textContent =
+    score1;
+
+
+  scoreText2.textContent =
+    score2;
+
+
+  timeText.textContent =
+    timeLeft;
+
+
+  aim1X =
+    40;
+
+  aim1Y =
+    55;
+
+
+  aim2X =
+    60;
+
+  aim2Y =
+    55;
+
+
+  smoothRightX =
+    0;
+
+  smoothRightY =
+    0;
+
+  smoothLeftX =
+    0;
+
+  smoothLeftY =
+    0;
+
+
+  crosshair1.style.left =
+    aim1X + "%";
+
+
+  crosshair1.style.top =
+    aim1Y + "%";
+
+
+  crosshair2.style.left =
+    aim2X + "%";
+
+
+  crosshair2.style.top =
+    aim2Y + "%";
+
+
+  previousRightShoot =
+    false;
+
+
+  previousLeftShoot =
+    false;
+
+
+  document
+
+    .querySelectorAll(
+      ".hole"
+    )
+
+    .forEach(
+
+      hole => {
+
+        hole.classList.remove(
+          "active"
+        );
+
+
+        hole.classList.remove(
+          "rare"
+        );
+
+
+        const alien =
+          hole.querySelector(
+            ".alien"
+          );
+
+
+        alien.classList.remove(
+          "shot"
+        );
+
+      }
+
+    );
+
+
+  startScreen.style.display =
+    "none";
+
+
+  gameOverScreen.style.display =
+    "none";
+
+
+  try {
+
+    getAudioContext().resume();
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+  }
+
+
+  startSpawning();
+
+
+  timerInterval =
+
+    setInterval(
+
+      () => {
+
+        timeLeft--;
+
+
+        timeText.textContent =
+          timeLeft;
+
+
+        if (
+          timeLeft <= 0
+        ) {
+
+          endGame();
+
+        }
+
+      },
+
+      1000
+
+    );
+
+}
+
+
+/* ================================
+   ゲーム終了
+================================ */
+
+function endGame() {
+
+  gameRunning =
+    false;
+
+
+  clearInterval(
+    timerInterval
+  );
+
+
+  clearTimeout(
+    spawnTimer
+  );
+
+
+  document
+
+    .querySelectorAll(
+      ".hole"
+    )
+
+    .forEach(
+
+      hole => {
+
+        hole.classList.remove(
+          "active"
+        );
+
+
+        hole.classList.remove(
+          "rare"
+        );
+
+
+        const alien =
+          hole.querySelector(
+            ".alien"
+          );
+
+
+        alien.classList.remove(
+          "shot"
+        );
+
+      }
+
+    );
+
+
+  finalScore1.textContent =
+    score1;
+
+
+  finalScore2.textContent =
+    score2;
+
+
+  if (
+    score1 > score2
+  ) {
+
+    winnerText.textContent =
+      "🏆 PLAYER 1 WIN!";
+
+  }
+
+  else if (
+    score2 > score1
+  ) {
+
+    winnerText.textContent =
+      "🏆 PLAYER 2 WIN!";
+
+  }
+
+  else {
+
+    winnerText.textContent =
+      "🤝 DRAW!";
+
+  }
+
+
+  gameOverScreen.style.display =
+    "flex";
+
+}
+
+
+/* ================================
+   ボタン
+================================ */
+
+startButton.addEventListener(
+
+  "click",
+
+  startGame
+
+);
+
+
+restartButton.addEventListener(
+
+  "click",
+
+  startGame
+
+);
+
+
+/* ================================
+   iPad / マウス確認用
+
+   タップはP1扱い
+================================ */
+
+game.addEventListener(
+
+  "pointerdown",
+
+  event => {
+
+    if (
+      !gameRunning
+    ) {
+
+      return;
+
+    }
+
+
+    if (
+      event.target.closest(
+        ".gameButton"
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    const activeAliens =
+
+      document.querySelectorAll(
+        ".hole.active .alien"
+      );
+
+
+    for (
+      const alien
+      of activeAliens
+    ) {
+
+      if (
+        alien.classList.contains(
+          "shot"
+        )
+      ) {
+
+        continue;
+
+      }
+
+
+      const rect =
+        alien.getBoundingClientRect();
+
+
+      if (
+
+        event.clientX >= rect.left
+
+        &&
+
+        event.clientX <= rect.right
+
+        &&
+
+        event.clientY >= rect.top
+
+        &&
+
+        event.clientY <= rect.bottom
+
+      ) {
+
+        const hole =
+          alien.closest(
+            ".hole"
+          );
+
+
+        hitAlien(
+
+          1,
+
+          hole,
+
+          alien,
+
+          event.clientX,
+
+          event.clientY
+
+        );
+
+
+        return;
+
+      }
+
+    }
+
+
+    const gameRect =
+      game.getBoundingClientRect();
+
+
+    showShotEffect(
+
+      event.clientX
+      -
+      gameRect.left,
+
+      event.clientY
+      -
+      gameRect.top
+
+    );
+
+  }
+
+);
+
+
+/* ================================
+   初期化
+================================ */
+
+createHoles();
+
+updateControllers();
+
+</script>
+
+
+</body>
+
+</html>
