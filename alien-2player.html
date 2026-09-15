@@ -451,36 +451,24 @@ body {
 ========================================= */
 
 .crosshair {
-
   position: absolute;
-
   z-index: 4500;
 
-  left: 0;
-  top: 0;
+  transform: translate(-50%, -50%);
 
-  font-size:
-    clamp(40px, 5vw, 65px);
-
+  font-size: clamp(40px, 5vw, 65px);
   font-weight: 900;
-
   line-height: 1;
 
   pointer-events: none;
-
-  /*
-    ここ重要！
-    GPUで照準を動かす
-  */
-  will-change: transform;
-  }
-  
+}
 
 
 /* 右Joy-Con / PLAYER 1 */
 
 #crosshair1 {
-
+  left: 40%;
+  top: 55%;
 
   color: #55eaff;
 
@@ -494,7 +482,8 @@ body {
 /* 左Joy-Con / PLAYER 2 */
 
 #crosshair2 {
-
+  left: 60%;
+  top: 55%;
 
   color: #ff6bba;
 
@@ -980,12 +969,14 @@ body {
 const GAME_TIME =
   30;
 
-const AIM_SPEED = 115;
 
-/*
-  スティック中央付近のブレだけ無視
-*/
-const DEAD_ZONE = 0.07;
+const AIM_SPEED = 1.9;
+
+const DEAD_ZONE = 0.08;
+
+const SMOOTHING = 0.72;
+
+const STOP_SMOOTHING = 0.88;
 
 
 /* =========================================
@@ -1229,6 +1220,14 @@ let aim2X =
 
 let aim2Y =
   55;
+
+
+let smoothRightX = 0;
+let smoothRightY = 0;
+
+let smoothLeftX = 0;
+let smoothLeftY = 0;
+
 
 /* なめらか移動用 */
 
@@ -1979,54 +1978,14 @@ function getLeftPad() {
    コントローラー更新
 ========================================= */
 
-let lastFrameTime =
-  performance.now();
 
-function updateControllers(
-  currentTime = performance.now()
-) {
-
-  /*
-    前のフレームから
-    何秒経ったか
-  */
-
-  let deltaTime =
-    (
-      currentTime
-      -
-      lastFrameTime
-    )
-    /
-    1000;
-
-
-  lastFrameTime =
-    currentTime;
-
-
-  /*
-    タブ切り替えなどで
-    急に飛ばないようにする
-  */
-
-  deltaTime =
-    Math.min(
-      deltaTime,
-      0.033
-    );
-
+function updateControllers() {
 
   const rightPad =
     getRightPad();
 
-
   const leftPad =
     getLeftPad();
-
-
-  const gameRect =
-    game.getBoundingClientRect();
 
 
   /* =====================================
@@ -2034,59 +1993,52 @@ function updateControllers(
      右Joy-Con
   ===================================== */
 
-  if (
-    rightPad
-  ) {
+  if (rightPad) {
 
-    const rawX =
+    let rawX =
       rightPad.axes[
         RIGHT_AXIS_X
       ] || 0;
 
-
-    const rawY =
+    let rawY =
       rightPad.axes[
         RIGHT_AXIS_Y
       ] || 0;
 
 
-    /*
-      入力を直接取得
+    if (
+      Math.abs(rawX) < DEAD_ZONE
+    ) {
+      rawX = 0;
+    }
 
-      前の方向は一切残さない
-    */
+    if (
+      Math.abs(rawY) < DEAD_ZONE
+    ) {
+      rawY = 0;
+    }
 
-    const moveX =
-      getSmoothStickValue(
+
+    smoothRightX =
+      smoothAxis(
+        smoothRightX,
         rawX
       );
 
-
-    const moveY =
-      getSmoothStickValue(
+    smoothRightY =
+      smoothAxis(
+        smoothRightY,
         rawY
       );
 
 
-    /*
-      フレームレートではなく
-      実際の時間で移動
-    */
-
     aim1X +=
-      moveX
-      *
-      AIM_SPEED
-      *
-      deltaTime;
-
+      smoothRightX
+      * AIM_SPEED;
 
     aim1Y +=
-      moveY
-      *
-      AIM_SPEED
-      *
-      deltaTime;
+      smoothRightY
+      * AIM_SPEED;
 
 
     aim1X =
@@ -2098,7 +2050,6 @@ function updateControllers(
         )
       );
 
-
     aim1Y =
       Math.max(
         3,
@@ -2109,76 +2060,169 @@ function updateControllers(
       );
 
 
-    /*
-      %位置をpxに変換
-    */
+    crosshair1.style.left =
+      aim1X + "%";
 
-    const player1X =
-      gameRect.width
-      *
-      aim1X
-      /
-      100;
+    crosshair1.style.top =
+      aim1Y + "%";
 
-
-    const player1Y =
-      gameRect.height
-      *
-      aim1Y
-      /
-      100;
-
-
-    /*
-      left/topではなく
-      transformで動かす
-    */
-
-    crosshair1.style.transform =
-      `translate3d(
-        ${player1X}px,
-        ${player1Y}px,
-        0
-      )
-      translate(-50%, -50%)`;
-
-
-    /*
-      Xボタン
-    */
 
     const shootPressed =
-
       rightPad.buttons[
         RIGHT_SHOOT_BUTTON
-      ]?.pressed
-
-      ||
-
-      false;
+      ]?.pressed || false;
 
 
     if (
-
       shootPressed
-
       &&
-
       !previousRightShoot
-
     ) {
 
-      shootWithCrosshair(
-        1
-      );
+      shootWithCrosshair(1);
 
     }
 
 
-     previousRightShoot =
+    previousRightShoot =
       shootPressed;
 
   }
+
+
+  /* =====================================
+     PLAYER 2
+     左Joy-Con
+  ===================================== */
+
+  if (leftPad) {
+
+    let rawX =
+      leftPad.axes[
+        LEFT_AXIS_X
+      ] || 0;
+
+    let rawY =
+      leftPad.axes[
+        LEFT_AXIS_Y
+      ] || 0;
+
+
+    if (
+      Math.abs(rawX) < DEAD_ZONE
+    ) {
+      rawX = 0;
+    }
+
+    if (
+      Math.abs(rawY) < DEAD_ZONE
+    ) {
+      rawY = 0;
+    }
+
+
+    smoothLeftX =
+      smoothAxis(
+        smoothLeftX,
+        rawX
+      );
+
+    smoothLeftY =
+      smoothAxis(
+        smoothLeftY,
+        rawY
+      );
+
+
+    aim2X +=
+      smoothLeftX
+      * AIM_SPEED;
+
+    aim2Y +=
+      smoothLeftY
+      * AIM_SPEED;
+
+
+    aim2X =
+      Math.max(
+        2,
+        Math.min(
+          98,
+          aim2X
+        )
+      );
+
+    aim2Y =
+      Math.max(
+        3,
+        Math.min(
+          97,
+          aim2Y
+        )
+      );
+
+
+    crosshair2.style.left =
+      aim2X + "%";
+
+    crosshair2.style.top =
+      aim2Y + "%";
+
+
+    const shootPressed =
+      leftPad.buttons[
+        LEFT_SHOOT_BUTTON
+      ]?.pressed || false;
+
+
+    if (
+      shootPressed
+      &&
+      !previousLeftShoot
+    ) {
+
+      shootWithCrosshair(2);
+
+    }
+
+
+    previousLeftShoot =
+      shootPressed;
+
+  }
+
+
+  requestAnimationFrame(
+    updateControllers
+  );
+
+}
+
+
+  function smoothAxis(current, target) {
+
+  const amount =
+    Math.abs(target) < DEAD_ZONE
+      ? STOP_SMOOTHING
+      : SMOOTHING;
+
+
+  const next =
+    current
+    +
+    (target - current)
+    * amount;
+
+
+  if (
+    Math.abs(next) < 0.01
+  ) {
+    return 0;
+  }
+
+
+  return next;
+}
 
 
   /* =====================================
@@ -2200,16 +2244,7 @@ function updateControllers(
       ] || 0;
 
 
-    const moveX =
-      getSmoothStickValue(
-        rawX
-      );
 
-
-    const moveY =
-      getSmoothStickValue(
-        rawY
-      );
 
 
     aim2X +=
@@ -2295,7 +2330,7 @@ function updateControllers(
     updateControllers
   );
 
-}
+
 
 
 /* =========================================
