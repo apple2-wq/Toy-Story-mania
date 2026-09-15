@@ -1982,9 +1982,8 @@ function getLeftPad() {
 let lastFrameTime =
   performance.now();
 
-
 function updateControllers(
-  currentTime
+  currentTime = performance.now()
 ) {
 
   /*
@@ -3516,9 +3515,7 @@ game.addEventListener(
 
 createHoles();
 
-requestAnimationFrame(
-  updateControllers
-);
+updateControllers();
 
 </script>
 
