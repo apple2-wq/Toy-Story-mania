@@ -2518,6 +2518,43 @@ function startGame() {
 }
 
 
+function getSmoothStickValue(value) {
+
+  const abs =
+    Math.abs(value);
+
+  /*
+    中央付近は完全に停止
+  */
+  if (
+    abs <= DEAD_ZONE
+  ) {
+
+    return 0;
+
+  }
+
+
+  /*
+    DEAD_ZONEを超えた瞬間に
+    ガクッと速度が上がらないよう補正
+  */
+
+  const normalized =
+    (abs - DEAD_ZONE)
+    /
+    (1 - DEAD_ZONE);
+
+
+  return (
+    Math.sign(value)
+    *
+    normalized
+  );
+
+}
+
+
 /* =========================================
    終了
 ========================================= */
