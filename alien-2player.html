@@ -2175,7 +2175,7 @@ function updateControllers(
     }
 
 
-    previousRightShoot =
+     previousRightShoot =
       shootPressed;
 
   }
@@ -2186,9 +2186,7 @@ function updateControllers(
      左Joy-Con
   ===================================== */
 
-  if (
-    leftPad
-  ) {
+  if (leftPad) {
 
     const rawX =
       leftPad.axes[
@@ -2233,20 +2231,14 @@ function updateControllers(
     aim2X =
       Math.max(
         2,
-        Math.min(
-          98,
-          aim2X
-        )
+        Math.min(98, aim2X)
       );
 
 
     aim2Y =
       Math.max(
         3,
-        Math.min(
-          97,
-          aim2Y
-        )
+        Math.min(97, aim2Y)
       );
 
 
@@ -2275,34 +2267,20 @@ function updateControllers(
       translate(-50%, -50%)`;
 
 
-    /*
-      ▼ボタン
-    */
-
+      
     const shootPressed =
-
       leftPad.buttons[
         LEFT_SHOOT_BUTTON
-      ]?.pressed
-
-      ||
-
-      false;
+      ]?.pressed || false;
 
 
     if (
-
       shootPressed
-
       &&
-
       !previousLeftShoot
-
     ) {
 
-      shootWithCrosshair(
-        2
-      );
+      shootWithCrosshair(2);
 
     }
 
