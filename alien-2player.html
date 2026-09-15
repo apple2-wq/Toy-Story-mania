@@ -979,20 +979,7 @@ const GAME_TIME =
 
 
 const AIM_SPEED = 1.9;
-
 const DEAD_ZONE = 0.08;
-
-/*
-  大きいほど反応が速い
-  0.7くらいならかなり滑らか＋即反応
-*/
-const SMOOTHING = 0.72;
-
-/*
-  スティックを戻した時は
-  さらに素早く止める
-*/
-const STOP_SMOOTHING = 0.88;
 
 
 /* =========================================
@@ -2039,30 +2026,11 @@ function updateControllers() {
     */
 
 
-    smoothRightX =
-  smoothAxis(
-    smoothRightX,
-    rawX
-  );
+aim1X +=
+  rawX * AIM_SPEED;
 
-smoothRightY =
-  smoothAxis(
-    smoothRightY,
-    rawY
-  );
-
-
-    /*
-      照準移動
-    */
-
-    aim1X +=
-      smoothRightX
-      * AIM_SPEED;
-
-    aim1Y +=
-      smoothRightY
-      * AIM_SPEED;
+aim1Y +=
+  rawY * AIM_SPEED;
 
 
     /*
@@ -2147,26 +2115,11 @@ smoothRightY =
     */
 
 
-    smoothLeftX =
-  smoothAxis(
-    smoothLeftX,
-    rawX
-  );
+aim2X +=
+  rawX * AIM_SPEED;
 
-smoothLeftY =
-  smoothAxis(
-    smoothLeftY,
-    rawY
-  );
-
-
-    aim2X +=
-      smoothLeftX
-      * AIM_SPEED;
-
-    aim2Y +=
-      smoothLeftY
-      * AIM_SPEED;
+aim2Y +=
+  rawY * AIM_SPEED;
 
 
     aim2X =
@@ -3253,41 +3206,6 @@ function endGame() {
   gameOverScreen.style.display =
     "flex";
 
-}
-
-
-function smoothAxis(current, target) {
-
-  /*
-    スティックを離した時は
-    すぐ0に近づける
-  */
-
-  const amount =
-    Math.abs(target) < DEAD_ZONE
-      ? STOP_SMOOTHING
-      : SMOOTHING;
-
-
-  const next =
-    current
-    +
-    (target - current)
-    * amount;
-
-
-  /*
-    ほぼ0なら完全に0
-  */
-
-  if (
-    Math.abs(next) < 0.01
-  ) {
-    return 0;
-  }
-
-
-  return next;
 }
 
 
