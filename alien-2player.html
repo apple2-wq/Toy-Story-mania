@@ -1044,6 +1044,22 @@ const CHARACTER_TYPES = {
     points: 5000,
     count: 4,
     rare: true
+  },
+
+  /* ★新しい10,000点の的 */
+  super: {
+    image: "alien-10000.png",
+    points: 10000,
+    count: 1,
+    rare: true
+  },
+
+  /* ★撃つとマイナス */
+  enemy: {
+    image: "enemy.png",
+    points: -1000,
+    count: 10,
+    rare: false
   }
 
 };
@@ -1695,55 +1711,29 @@ function startSpawning() {
     30秒間で30回出現させる
     0秒、1秒、2秒 ... 29秒
 
-    合計80体になるようにする
+/*
+  合計91体
+  30秒間に全部出す
+*/
 
-    2体同時 × 15回 = 30体
-    3体同時 × 10回 = 30体
-    4体同時 ×  5回 = 20体
+/* 2体 × 7回 = 14体 */
+for (let i = 0; i < 7; i++) {
+  wavePattern.push(2);
+}
 
-    合計 = 80体
-  */
+/* 3体 × 15回 = 45体 */
+for (let i = 0; i < 15; i++) {
+  wavePattern.push(3);
+}
 
-  let wavePattern = [];
+/* 4体 × 8回 = 32体 */
+for (let i = 0; i < 8; i++) {
+  wavePattern.push(4);
+}
 
-
-  /* 2体同時を15回 */
-
-  for (
-    let i = 0;
-    i < 15;
-    i++
-  ) {
-
-    wavePattern.push(2);
-
-  }
-
-
-  /* 3体同時を10回 */
-
-  for (
-    let i = 0;
-    i < 10;
-    i++
-  ) {
-
-    wavePattern.push(3);
-
-  }
-
-
-  /* 4体同時を5回 */
-
-  for (
-    let i = 0;
-    i < 5;
-    i++
-  ) {
-
-    wavePattern.push(4);
-
-  }
+/*
+14 + 45 + 32 = 91体
+*/
 
 
   /*
@@ -2719,31 +2709,31 @@ function showPoints(
     "pointPopup";
 
 
+  if (points >= 0) {
+
   popup.textContent =
+    "P" + player + " +" + points;
 
-    "P"
+} else {
 
-    +
+  popup.textContent =
+    "P" + player + " " + points;
 
-    player
+}
 
-    +
 
-    " +"
+  if (points < 0) {
 
-    +
+  popup.style.color = "#ff3b3b";
 
-    points;
-
+} else {
 
   popup.style.color =
-
     player === 1
-
       ? "#55eaff"
-
       : "#ff6bba";
 
+}
 
   popup.style.left =
     x + "px";
@@ -2940,6 +2930,37 @@ function playHitSound(
   points
 ) {
 
+ if (points === -1000) {
+
+  playTone(180, 0.18);
+
+  setTimeout(() => {
+    playTone(120, 0.22);
+  }, 100);
+
+  return;
+ }
+
+
+ if (points === 10000) {
+
+  playTone(900, 0.10);
+
+  setTimeout(() => {
+    playTone(1200, 0.10);
+  }, 80);
+
+  setTimeout(() => {
+    playTone(1500, 0.10);
+  }, 160);
+
+  setTimeout(() => {
+    playTone(1900, 0.28);
+  }, 240);
+
+  return;
+}
+
 
   /* 緑 */
 
@@ -2953,7 +2974,7 @@ function playHitSound(
       0.12
     );
 
-  }
+   }
 
 
   /* 青 */
