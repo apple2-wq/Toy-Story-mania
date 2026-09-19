@@ -2,7 +2,6 @@
 <html lang="ja">
 
 <head>
-
 <meta charset="UTF-8">
 
 <meta
@@ -10,14 +9,9 @@
   content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
 >
 
-<title>ALIEN SHOOTING</title>
-
+<title>ALIEN STAGE 5</title>
 
 <style>
-
-/* ========================================
-   基本
-======================================== */
 
 * {
   box-sizing: border-box;
@@ -28,7 +22,6 @@ html,
 body {
   margin: 0;
   padding: 0;
-
   width: 100%;
   height: 100%;
 
@@ -42,16 +35,15 @@ body {
 }
 
 
-/* ========================================
-   ゲーム
-======================================== */
+/* =========================
+   ゲーム全体
+========================= */
 
 #gameWrapper {
   width: 100vw;
   height: 100vh;
 
   display: flex;
-
   justify-content: center;
   align-items: center;
 
@@ -84,9 +76,9 @@ body {
 }
 
 
-/* ========================================
+/* =========================
    HUD
-======================================== */
+========================= */
 
 #hud {
   position: absolute;
@@ -151,9 +143,9 @@ body {
 }
 
 
-/* ========================================
+/* =========================
    穴
-======================================== */
+========================= */
 
 .hole {
   position: absolute;
@@ -177,9 +169,9 @@ body {
 }
 
 
-/* ========================================
-   エイリアン
-======================================== */
+/* =========================
+   キャラクター
+========================= */
 
 .alien {
   position: absolute;
@@ -258,9 +250,9 @@ body {
 }
 
 
-/* ========================================
+/* =========================
    撃たれた
-======================================== */
+========================= */
 
 .alien.shot {
   animation:
@@ -294,9 +286,9 @@ body {
 }
 
 
-/* ========================================
+/* =========================
    王冠キラキラ
-======================================== */
+========================= */
 
 .hole.rare .alien {
   filter:
@@ -348,6 +340,33 @@ body {
     sparkleRight
     0.95s
     infinite;
+}
+
+
+/* 10000点 */
+
+.hole.superRare .alien {
+  filter:
+    drop-shadow(0 0 7px white)
+    drop-shadow(0 0 14px #fff45b)
+    drop-shadow(0 0 24px #ffad32)
+    drop-shadow(0 0 35px #ff4fd8);
+}
+
+
+.hole.superRare.active::before {
+  content: "✦ ✨ ✦";
+
+  font-size: 30px;
+}
+
+
+/* 敵 */
+
+.hole.enemy .alien {
+  filter:
+    drop-shadow(0 0 7px #ff4141)
+    drop-shadow(0 0 15px #8b0000);
 }
 
 
@@ -403,9 +422,9 @@ body {
 }
 
 
-/* ========================================
+/* =========================
    照準
-======================================== */
+========================= */
 
 .crosshair {
   position: absolute;
@@ -426,6 +445,8 @@ body {
 }
 
 
+/* P1 水色 */
+
 #crosshair1 {
   left: 40%;
   top: 55%;
@@ -438,6 +459,8 @@ body {
     0 0 18px #55eaff;
 }
 
+
+/* P2 ピンク */
 
 #crosshair2 {
   left: 60%;
@@ -452,9 +475,9 @@ body {
 }
 
 
-/* ========================================
-   得点
-======================================== */
+/* =========================
+   得点POP
+========================= */
 
 .pointPopup {
   position: absolute;
@@ -511,9 +534,9 @@ body {
 }
 
 
-/* ========================================
+/* =========================
    発射エフェクト
-======================================== */
+========================= */
 
 .shotEffect {
   position: absolute;
@@ -564,9 +587,9 @@ body {
 }
 
 
-/* ========================================
-   画面
-======================================== */
+/* =========================
+   START / END
+========================= */
 
 #startScreen,
 #gameOverScreen {
@@ -614,10 +637,10 @@ body {
 
 
 .description {
-  margin: 12px;
+  margin: 9px;
 
   font-size:
-    clamp(12px,1.8vw,22px);
+    clamp(12px,1.6vw,21px);
 
   font-weight: bold;
 }
@@ -657,34 +680,39 @@ body {
 
 .gameButton:disabled {
   opacity: 0.45;
+
   cursor: default;
 }
 
 
-/* ========================================
+/* =========================
    Joy-Con設定
-======================================== */
+========================= */
 
 #controllerSetup {
-  margin: 10px 0;
+  margin: 8px 0;
 
   padding:
     10px 20px;
 
-  min-width: 290px;
+  min-width: 330px;
 
   background:
     rgba(0,0,0,0.35);
 
-  border-radius: 14px;
+  border-radius:
+    14px;
 
   border:
-    2px solid rgba(255,255,255,0.35);
+    2px solid
+    rgba(255,255,255,0.35);
 }
 
 
 .setupRow {
-  margin: 5px;
+  margin: 7px;
+
+  padding: 5px;
 
   font-size:
     clamp(13px,1.7vw,21px);
@@ -704,7 +732,7 @@ body {
 
 
 #setupInstruction {
-  margin-top: 8px;
+  margin-top: 9px;
 
   color: #ffe44d;
 
@@ -716,13 +744,14 @@ body {
 
 
 .setupDone {
-  color: #72ff8d !important;
+  color:
+    #72ff8d !important;
 }
 
 
-/* ========================================
-   結果
-======================================== */
+/* =========================
+   GAME OVER
+========================= */
 
 .finalScore {
   font-size:
@@ -756,6 +785,233 @@ body {
 }
 
 
+/* =========================
+   カーテン
+========================= */
+
+#introScreen {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 9000;
+
+  display: none;
+
+  overflow: hidden;
+
+  pointer-events: none;
+}
+
+
+.curtain {
+  position: absolute;
+
+  top: 0;
+
+  width: 51%;
+  height: 100%;
+
+  z-index: 2;
+
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #8f001c 0%,
+      #c71938 7%,
+      #720015 14%,
+      #b80e2c 21%
+    );
+
+  box-shadow:
+    inset 0 0 45px
+    rgba(0,0,0,0.65);
+
+  transition:
+    transform
+    0.9s
+    cubic-bezier(0.65,0,0.35,1);
+}
+
+
+#curtainLeft {
+  left: 0;
+
+  border-right:
+    6px solid #f0b329;
+}
+
+
+#curtainRight {
+  right: 0;
+
+  border-left:
+    6px solid #f0b329;
+}
+
+
+#introScreen.open
+#curtainLeft {
+  transform:
+    translateX(-105%);
+}
+
+
+#introScreen.open
+#curtainRight {
+  transform:
+    translateX(105%);
+}
+
+
+/* =========================
+   321
+========================= */
+
+#countdownText {
+  position: absolute;
+
+  z-index: 5;
+
+  left: 50%;
+  top: 50%;
+
+  transform:
+    translate(-50%,-50%);
+
+  color:
+    #fff54f;
+
+  font-size:
+    clamp(90px,18vw,230px);
+
+  font-weight: 900;
+
+  line-height: 1;
+
+  text-shadow:
+    5px 5px 0 #6d20a5,
+    0 0 15px white,
+    0 0 35px #ff8a00;
+}
+
+
+.countPop {
+  animation:
+    countPopAnimation
+    0.6s;
+}
+
+
+@keyframes countPopAnimation {
+
+  0% {
+    opacity: 0;
+
+    transform:
+      translate(-50%,-50%)
+      scale(0.4);
+  }
+
+  35% {
+    opacity: 1;
+
+    transform:
+      translate(-50%,-50%)
+      scale(1.25);
+  }
+
+  100% {
+    opacity: 1;
+
+    transform:
+      translate(-50%,-50%)
+      scale(1);
+  }
+
+}
+
+
+/* =========================
+   START
+========================= */
+
+#startFlash {
+  position: absolute;
+
+  z-index: 6;
+
+  left: 50%;
+  top: 50%;
+
+  transform:
+    translate(-50%,-50%)
+    scale(0.6);
+
+  opacity: 0;
+
+  color:
+    #fff54f;
+
+  font-size:
+    clamp(55px,11vw,145px);
+
+  font-weight: 900;
+
+  white-space: nowrap;
+
+  text-shadow:
+    5px 5px 0 #6d20a5,
+    0 0 15px white,
+    0 0 35px #ff8a00;
+}
+
+
+#startFlash.show {
+  animation:
+    startFlashAnimation
+    0.7s
+    forwards;
+}
+
+
+@keyframes startFlashAnimation {
+
+  0% {
+    opacity: 0;
+
+    transform:
+      translate(-50%,-50%)
+      scale(0.45);
+  }
+
+  35% {
+    opacity: 1;
+
+    transform:
+      translate(-50%,-50%)
+      scale(1.25);
+  }
+
+  70% {
+    opacity: 1;
+
+    transform:
+      translate(-50%,-50%)
+      scale(1);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%,-50%)
+      scale(1.15);
+  }
+
+}
+
+
 @media (max-width:700px) {
 
   #hud {
@@ -770,7 +1026,6 @@ body {
 }
 
 </style>
-
 </head>
 
 
@@ -782,21 +1037,37 @@ body {
 <div id="game">
 
 
+<!-- HUD -->
+
 <div id="hud">
 
   <div class="hudBox">
+
     P1
-    <span id="score1">0</span>
+    <span id="score1">
+      0
+    </span>
+
   </div>
 
+
   <div class="hudBox">
+
     TIME
-    <span id="time">30</span>
+    <span id="time">
+      30
+    </span>
+
   </div>
 
+
   <div class="hudBox">
+
     P2
-    <span id="score2">0</span>
+    <span id="score2">
+      0
+    </span>
+
   </div>
 
 </div>
@@ -821,16 +1092,19 @@ body {
 </div>
 
 
-<!-- =====================================
-     最初の画面
-===================================== -->
+
+<!-- =========================
+     START SCREEN
+========================= -->
 
 <div id="startScreen">
 
   <div class="gameTitle">
+
     ALIEN
     <br>
     SHOOTING
+
   </div>
 
 
@@ -843,11 +1117,14 @@ body {
 
   <div id="controllerSetup">
 
+
     <div
       id="rightSetup"
       class="setupRow"
     >
-      P1 右Joy-Con ZR：未設定
+
+      🔵 P1　右Joy-Con ZR：未設定
+
     </div>
 
 
@@ -855,12 +1132,16 @@ body {
       id="leftSetup"
       class="setupRow"
     >
-      P2 左Joy-Con ZL：未設定
+
+      🩷 P2　左Joy-Con ZL：未設定
+
     </div>
 
 
     <div id="setupInstruction">
+
       右Joy-Conの ZR を押してね
+
     </div>
 
   </div>
@@ -870,8 +1151,13 @@ body {
 
     🟢 500　
     🔵 1000　
-    🟣 2000　
-    👑 5000
+    🟣 2000
+
+    <br>
+
+    👑 5000　
+    ✨ 10000　
+    👾 −1000
 
   </div>
 
@@ -882,7 +1168,9 @@ body {
     type="button"
     disabled
   >
+
     GAME START
+
   </button>
 
 
@@ -891,20 +1179,26 @@ body {
     class="gameButton"
     type="button"
   >
+
     JOY-CON 再設定
+
   </button>
 
 </div>
 
 
-<!-- =====================================
-     終了
-===================================== -->
+
+<!-- =========================
+     GAME OVER
+========================= -->
 
 <div id="gameOverScreen">
 
+
   <div class="gameTitle">
+
     TIME UP!
+
   </div>
 
 
@@ -938,14 +1232,52 @@ body {
     class="gameButton"
     type="button"
   >
+
     PLAY AGAIN
+
   </button>
 
 </div>
 
 
+
+<!-- =========================
+     INTRO
+========================= -->
+
+<div id="introScreen">
+
+
+  <div
+    id="curtainLeft"
+    class="curtain"
+  ></div>
+
+
+  <div
+    id="curtainRight"
+    class="curtain"
+  ></div>
+
+
+  <div id="countdownText">
+
+    3
+
+  </div>
+
+
+  <div id="startFlash">
+
+    START!
+
+  </div>
+
+
 </div>
 
+
+</div>
 </div>
 
 
@@ -960,25 +1292,13 @@ const GAME_TIME =
   30;
 
 
-/*
-  照準速度
-*/
-
 const AIM_SPEED =
   1.9;
 
 
-/*
-  スティック中央のブレ
-*/
-
 const DEAD_ZONE =
   0.08;
 
-
-/*
-  360°入力カーブ
-*/
 
 const STICK_CURVE =
   1.25;
@@ -987,11 +1307,10 @@ const STICK_CURVE =
 /* ========================================
    Joy-Con axes
 
-   ボタン番号だけは
-   起動時に自動登録
+   前に確認した値を使用
 ======================================== */
 
-/* 右Joy-Con */
+/* P1 右Joy-Con */
 
 const RIGHT_AXIS_X =
   2;
@@ -1000,7 +1319,7 @@ const RIGHT_AXIS_Y =
   3;
 
 
-/* 左Joy-Con */
+/* P2 左Joy-Con */
 
 const LEFT_AXIS_X =
   0;
@@ -1009,20 +1328,52 @@ const LEFT_AXIS_Y =
   1;
 
 
+/* ========================================
+   ★Joy-Con登録データ
+======================================== */
+
 /*
-  ★ボタン番号は固定しない
+  ボタン番号
 */
 
 let rightShootButton =
   null;
 
+
 let leftShootButton =
   null;
 
-let rightPadIndex = null;
-let leftPadIndex = null;
 
-let calibrationStep = "right";
+/*
+  Gamepad本体のindex
+
+  ★同じJoy-Conが
+  P1とP2両方になるのを防ぐ
+*/
+
+let rightPadIndex =
+  null;
+
+
+let leftPadIndex =
+  null;
+
+
+/*
+  設定の進行
+*/
+
+let calibrationStep =
+  "right";
+
+
+/*
+  right
+  waitRightRelease
+  left
+  waitLeftRelease
+  done
+*/
 
 
 /* ========================================
@@ -1031,7 +1382,9 @@ let calibrationStep = "right";
 
 const CHARACTER_TYPES = {
 
+
   green: {
+
     image:
       "alien-green.png",
 
@@ -1042,11 +1395,19 @@ const CHARACTER_TYPES = {
       48,
 
     rare:
+      false,
+
+    superRare:
+      false,
+
+    enemy:
       false
+
   },
 
 
   blue: {
+
     image:
       "alien-blue.png",
 
@@ -1057,11 +1418,19 @@ const CHARACTER_TYPES = {
       20,
 
     rare:
+      false,
+
+    superRare:
+      false,
+
+    enemy:
       false
+
   },
 
 
   purple: {
+
     image:
       "alien-purple.png",
 
@@ -1072,11 +1441,19 @@ const CHARACTER_TYPES = {
       8,
 
     rare:
+      false,
+
+    superRare:
+      false,
+
+    enemy:
       false
+
   },
 
 
   crown: {
+
     image:
       "alien-crown.png",
 
@@ -1087,23 +1464,75 @@ const CHARACTER_TYPES = {
       4,
 
     rare:
+      true,
+
+    superRare:
+      false,
+
+    enemy:
+      false
+
+  },
+
+
+  super: {
+
+    image:
+      "alien-10000.png",
+
+    points:
+      10000,
+
+    count:
+      1,
+
+    rare:
+      true,
+
+    superRare:
+      true,
+
+    enemy:
+      false
+
+  },
+
+
+  enemy: {
+
+    image:
+      "enemy.png",
+
+    points:
+      -1000,
+
+    count:
+      10,
+
+    rare:
+      false,
+
+    superRare:
+      false,
+
+    enemy:
       true
+
   }
 
 };
 
 
 /*
-  理論MAX
+  プラスMAX
 
-  48 × 500
-  20 × 1000
-  8 × 2000
-  4 × 5000
+  24000
+  +20000
+  +16000
+  +20000
+  +10000
 
-  = 80,000点
-
-  2人合計
+  = 90000
 */
 
 
@@ -1115,7 +1544,7 @@ const holeData = [
 
   {
     x:47.92,
-    y:38.5,
+    y:38.50,
     size:8
   },
 
@@ -1213,6 +1642,7 @@ const holeData = [
 let score1 =
   0;
 
+
 let score2 =
   0;
 
@@ -1222,6 +1652,10 @@ let timeLeft =
 
 
 let gameRunning =
+  false;
+
+
+let introRunning =
   false;
 
 
@@ -1260,7 +1694,7 @@ let aim2Y =
 
 
 /* ========================================
-   発射ボタン状態
+   発射状態
 ======================================== */
 
 let previousRightShoot =
@@ -1269,23 +1703,6 @@ let previousRightShoot =
 
 let previousLeftShoot =
   false;
-
-
-/* ========================================
-   Joy-Con設定状態
-======================================== */
-
-let calibrationStep =
-  "right";
-
-
-/*
-  right
-  waitRightRelease
-  left
-  waitLeftRelease
-  done
-*/
 
 
 /* ========================================
@@ -1400,11 +1817,29 @@ const crosshair2 =
   );
 
 
+const introScreen =
+  document.getElementById(
+    "introScreen"
+  );
+
+
+const countdownText =
+  document.getElementById(
+    "countdownText"
+  );
+
+
+const startFlash =
+  document.getElementById(
+    "startFlash"
+  );
+
+
 /* ========================================
-   Joy-Con取得
+   Gamepad取得
 ======================================== */
 
-function getConnectedPads() {
+function getAllPads() {
 
   return Array.from(
     navigator.getGamepads()
@@ -1417,166 +1852,37 @@ function getConnectedPads() {
 
 
 /* ========================================
-   右Joy-Con判定
+   指定indexのJoy-Con取得
 ======================================== */
 
-function getRightPad() {
-
-  const pads =
-    getConnectedPads();
-
-
-  /*
-    名前で探す
-  */
-
-  const byName =
-    pads.find(
-
-      pad => {
-
-        const name =
-          pad.id.toLowerCase();
-
-
-        return (
-
-          name.includes(
-            "joy-con (r)"
-          )
-
-          ||
-
-          name.includes(
-            "joy-con r"
-          )
-
-          ||
-
-          name.includes(
-            "right"
-          )
-
-        );
-
-      }
-
-    );
-
-
-  if (byName) {
-
-    return byName;
-
-  }
-
-
-  /*
-    右はaxes 2・3を使うので
-    axesが4個以上あるものを優先
-  */
-
-  const byAxes =
-    pads.find(
-
-      pad =>
-        pad.axes.length >= 4
-
-    );
-
-
-  return (
-    byAxes
-    ||
-    pads[0]
-    ||
-    null
-  );
-
-}
-
-
-/* ========================================
-   左Joy-Con判定
-======================================== */
-
-function getLeftPad(
-  rightPad
+function getPadByIndex(
+  index
 ) {
 
-  const pads =
-    getConnectedPads();
-
-
-  const byName =
-    pads.find(
-
-      pad => {
-
-        const name =
-          pad.id.toLowerCase();
-
-
-        return (
-
-          name.includes(
-            "joy-con (l)"
-          )
-
-          ||
-
-          name.includes(
-            "joy-con l"
-          )
-
-          ||
-
-          name.includes(
-            "left"
-          )
-
-        );
-
-      }
-
-    );
-
-
   if (
-    byName
-    &&
-    byName !== rightPad
+    index === null
   ) {
 
-    return byName;
+    return null;
 
   }
 
 
-  /*
-    右Joy-Conではないもの
-  */
+  const pads =
+    navigator.getGamepads();
+
 
   return (
-
-    pads.find(
-
-      pad =>
-        pad !== rightPad
-
-    )
-
+    pads[index]
     ||
-
     null
-
   );
 
 }
 
 
 /* ========================================
-   押されているボタン番号を探す
+   押されているボタンを探す
 ======================================== */
 
 function findPressedButton(
@@ -1613,7 +1919,7 @@ function findPressedButton(
 
 
 /* ========================================
-   全ボタンが離されたか
+   全ボタンが離れているか
 ======================================== */
 
 function allButtonsReleased(
@@ -1638,7 +1944,7 @@ function allButtonsReleased(
 
 
 /* ========================================
-   Joy-Con設定リセット
+   Joy-Con登録リセット
 ======================================== */
 
 function resetCalibration() {
@@ -1651,16 +1957,32 @@ function resetCalibration() {
     null;
 
 
+  rightPadIndex =
+    null;
+
+
+  leftPadIndex =
+    null;
+
+
   calibrationStep =
     "right";
 
 
+  previousRightShoot =
+    false;
+
+
+  previousLeftShoot =
+    false;
+
+
   rightSetup.textContent =
-    "P1 右Joy-Con ZR：未設定";
+    "🔵 P1　右Joy-Con ZR：未設定";
 
 
   leftSetup.textContent =
-    "P2 左Joy-Con ZL：未設定";
+    "🩷 P2　左Joy-Con ZL：未設定";
 
 
   rightSetup.classList.remove(
@@ -1689,20 +2011,22 @@ function resetCalibration() {
 
 
 /* ========================================
-   Joy-Conボタン設定
+   ★Joy-Con登録
+
+   ① 右ZR
+   ② 離す
+   ③ 別のJoy-ConのZL
+   ④ 離す
+
+   同じJoy-ConはP2に登録できない
 ======================================== */
 
-function updateCalibration(
-  rightPad,
-  leftPad
-) {
-
-  /*
-    ゲーム中は設定しない
-  */
+function updateCalibration() {
 
   if (
     gameRunning
+    ||
+    introRunning
   ) {
 
     return;
@@ -1710,64 +2034,95 @@ function updateCalibration(
   }
 
 
-  /* ---------------------------
-     右ZR
-  --------------------------- */
+  const pads =
+    getAllPads();
+
+
+  /* =====================================
+     ① P1 右Joy-Con ZR
+  ===================================== */
 
   if (
     calibrationStep ===
     "right"
   ) {
 
-    const pressed =
-      findPressedButton(
-        rightPad
-      );
-
-
-    if (
-      pressed !== null
+    for (
+      const pad
+      of pads
     ) {
 
-      rightShootButton =
-        pressed;
+      const pressed =
+        findPressedButton(
+          pad
+        );
 
 
-      rightSetup.textContent =
-        "P1 右Joy-Con ZR：BUTTON "
-        +
-        pressed
-        +
-        " ✓";
+      if (
+        pressed !== null
+      ) {
+
+        /*
+          このJoy-Con本体を
+          P1として固定
+        */
+
+        rightPadIndex =
+          pad.index;
 
 
-      rightSetup.classList.add(
-        "setupDone"
-      );
+        rightShootButton =
+          pressed;
 
 
-      setupInstruction.textContent =
-        "ZRを離してね";
+        rightSetup.textContent =
+          "🔵 P1　右Joy-Con ZR：BUTTON "
+          +
+          pressed
+          +
+          " ✓";
 
 
-      calibrationStep =
-        "waitRightRelease";
+        rightSetup.classList.add(
+          "setupDone"
+        );
+
+
+        setupInstruction.textContent =
+          "ZRを離してね";
+
+
+        calibrationStep =
+          "waitRightRelease";
+
+
+        return;
+
+      }
 
     }
 
   }
 
 
-  /* ---------------------------
-     右ZRを離す
-  --------------------------- */
+  /* =====================================
+     ② ZRを離す
+  ===================================== */
 
   else if (
     calibrationStep ===
     "waitRightRelease"
   ) {
 
+    const rightPad =
+      getPadByIndex(
+        rightPadIndex
+      );
+
+
     if (
+      rightPad
+      &&
       allButtonsReleased(
         rightPad
       )
@@ -1785,64 +2140,106 @@ function updateCalibration(
   }
 
 
-  /* ---------------------------
-     左ZL
-  --------------------------- */
+  /* =====================================
+     ③ P2 左Joy-Con ZL
+  ===================================== */
 
   else if (
     calibrationStep ===
     "left"
   ) {
 
-    const pressed =
-      findPressedButton(
-        leftPad
-      );
-
-
-    if (
-      pressed !== null
+    for (
+      const pad
+      of pads
     ) {
 
-      leftShootButton =
-        pressed;
+      /*
+        ★P1に登録済みのJoy-Conは
+        完全に無視
+      */
+
+      if (
+        pad.index ===
+        rightPadIndex
+      ) {
+
+        continue;
+
+      }
 
 
-      leftSetup.textContent =
-        "P2 左Joy-Con ZL：BUTTON "
-        +
-        pressed
-        +
-        " ✓";
+      const pressed =
+        findPressedButton(
+          pad
+        );
 
 
-      leftSetup.classList.add(
-        "setupDone"
-      );
+      if (
+        pressed !== null
+      ) {
+
+        /*
+          この別Joy-Conを
+          P2として固定
+        */
+
+        leftPadIndex =
+          pad.index;
 
 
-      setupInstruction.textContent =
-        "ZLを離してね";
+        leftShootButton =
+          pressed;
 
 
-      calibrationStep =
-        "waitLeftRelease";
+        leftSetup.textContent =
+          "🩷 P2　左Joy-Con ZL：BUTTON "
+          +
+          pressed
+          +
+          " ✓";
+
+
+        leftSetup.classList.add(
+          "setupDone"
+        );
+
+
+        setupInstruction.textContent =
+          "ZLを離してね";
+
+
+        calibrationStep =
+          "waitLeftRelease";
+
+
+        return;
+
+      }
 
     }
 
   }
 
 
-  /* ---------------------------
-     左ZLを離す
-  --------------------------- */
+  /* =====================================
+     ④ ZLを離す
+  ===================================== */
 
   else if (
     calibrationStep ===
     "waitLeftRelease"
   ) {
 
+    const leftPad =
+      getPadByIndex(
+        leftPadIndex
+      );
+
+
     if (
+      leftPad
+      &&
       allButtonsReleased(
         leftPad
       )
@@ -1872,7 +2269,7 @@ function updateCalibration(
 
 
 /* ========================================
-   360°スティック
+   360°スティック処理
 ======================================== */
 
 function getStickVector(
@@ -1891,10 +2288,6 @@ function getStickVector(
 
     );
 
-
-  /*
-    中心付近なら停止
-  */
 
   if (
     magnitude <= DEAD_ZONE
@@ -1915,10 +2308,6 @@ function getStickVector(
     );
 
 
-  /*
-    DEAD_ZONE分を除去
-  */
-
   const adjusted =
     (
       clamped
@@ -1933,10 +2322,6 @@ function getStickVector(
     );
 
 
-  /*
-    小さい入力は繊細に
-  */
-
   const curved =
     Math.pow(
       adjusted,
@@ -1944,31 +2329,23 @@ function getStickVector(
     );
 
 
-  /*
-    方向
-  */
-
-  const directionX =
-    rawX
-    /
-    magnitude;
-
-
-  const directionY =
-    rawY
-    /
-    magnitude;
-
-
   return {
 
     x:
-      directionX
+      (
+        rawX
+        /
+        magnitude
+      )
       *
       curved,
 
     y:
-      directionY
+      (
+        rawY
+        /
+        magnitude
+      )
       *
       curved
 
@@ -1983,24 +2360,28 @@ function getStickVector(
 
 function updateControllers() {
 
-  const rightPad =
-    getRightPad();
+  /*
+    ゲーム前なら登録処理
+  */
 
-
-  const leftPad =
-    getLeftPad(
-      rightPad
-    );
+  updateCalibration();
 
 
   /*
-    最初の設定画面
+    登録した本体を
+    indexから直接取る
   */
 
-  updateCalibration(
-    rightPad,
-    leftPad
-  );
+  const rightPad =
+    getPadByIndex(
+      rightPadIndex
+    );
+
+
+  const leftPad =
+    getPadByIndex(
+      leftPadIndex
+    );
 
 
   /* =====================================
@@ -2009,6 +2390,8 @@ function updateControllers() {
 
   if (
     rightPad
+    &&
+    gameRunning
   ) {
 
     const rawX =
@@ -2030,94 +2413,80 @@ function updateControllers() {
       );
 
 
-    /*
-      ゲーム中だけ照準移動
-  */
+    aim1X +=
+      stick.x
+      *
+      AIM_SPEED;
+
+
+    aim1Y +=
+      stick.y
+      *
+      AIM_SPEED;
+
+
+    aim1X =
+      Math.max(
+        2,
+        Math.min(
+          98,
+          aim1X
+        )
+      );
+
+
+    aim1Y =
+      Math.max(
+        3,
+        Math.min(
+          97,
+          aim1Y
+        )
+      );
+
+
+    crosshair1.style.left =
+      aim1X + "%";
+
+
+    crosshair1.style.top =
+      aim1Y + "%";
+
+
+    const shootPressed =
+
+      rightShootButton !== null
+
+      &&
+
+      (
+        rightPad.buttons[
+          rightShootButton
+        ]?.pressed
+        ||
+        false
+      );
+
 
     if (
-      gameRunning
+
+      shootPressed
+
+      &&
+
+      !previousRightShoot
+
     ) {
 
-      aim1X +=
-        stick.x
-        *
-        AIM_SPEED;
-
-
-      aim1Y +=
-        stick.y
-        *
-        AIM_SPEED;
-
-
-      aim1X =
-        Math.max(
-          2,
-          Math.min(
-            98,
-            aim1X
-          )
-        );
-
-
-      aim1Y =
-        Math.max(
-          3,
-          Math.min(
-            97,
-            aim1Y
-          )
-        );
-
-
-      crosshair1.style.left =
-        aim1X + "%";
-
-
-      crosshair1.style.top =
-        aim1Y + "%";
-
-
-      /*
-        自動登録したZR
-      */
-
-      const shootPressed =
-
-        rightShootButton !== null
-
-        &&
-
-        (
-          rightPad.buttons[
-            rightShootButton
-          ]?.pressed
-          ||
-          false
-        );
-
-
-      if (
-
-        shootPressed
-
-        &&
-
-        !previousRightShoot
-
-      ) {
-
-        shootWithCrosshair(
-          1
-        );
-
-      }
-
-
-      previousRightShoot =
-        shootPressed;
+      shootWithCrosshair(
+        1
+      );
 
     }
+
+
+    previousRightShoot =
+      shootPressed;
 
   }
 
@@ -2128,6 +2497,8 @@ function updateControllers() {
 
   if (
     leftPad
+    &&
+    gameRunning
   ) {
 
     const rawX =
@@ -2149,90 +2520,80 @@ function updateControllers() {
       );
 
 
+    aim2X +=
+      stick.x
+      *
+      AIM_SPEED;
+
+
+    aim2Y +=
+      stick.y
+      *
+      AIM_SPEED;
+
+
+    aim2X =
+      Math.max(
+        2,
+        Math.min(
+          98,
+          aim2X
+        )
+      );
+
+
+    aim2Y =
+      Math.max(
+        3,
+        Math.min(
+          97,
+          aim2Y
+        )
+      );
+
+
+    crosshair2.style.left =
+      aim2X + "%";
+
+
+    crosshair2.style.top =
+      aim2Y + "%";
+
+
+    const shootPressed =
+
+      leftShootButton !== null
+
+      &&
+
+      (
+        leftPad.buttons[
+          leftShootButton
+        ]?.pressed
+        ||
+        false
+      );
+
+
     if (
-      gameRunning
+
+      shootPressed
+
+      &&
+
+      !previousLeftShoot
+
     ) {
 
-      aim2X +=
-        stick.x
-        *
-        AIM_SPEED;
-
-
-      aim2Y +=
-        stick.y
-        *
-        AIM_SPEED;
-
-
-      aim2X =
-        Math.max(
-          2,
-          Math.min(
-            98,
-            aim2X
-          )
-        );
-
-
-      aim2Y =
-        Math.max(
-          3,
-          Math.min(
-            97,
-            aim2Y
-          )
-        );
-
-
-      crosshair2.style.left =
-        aim2X + "%";
-
-
-      crosshair2.style.top =
-        aim2Y + "%";
-
-
-      /*
-        自動登録したZL
-      */
-
-      const shootPressed =
-
-        leftShootButton !== null
-
-        &&
-
-        (
-          leftPad.buttons[
-            leftShootButton
-          ]?.pressed
-          ||
-          false
-        );
-
-
-      if (
-
-        shootPressed
-
-        &&
-
-        !previousLeftShoot
-
-      ) {
-
-        shootWithCrosshair(
-          2
-        );
-
-      }
-
-
-      previousLeftShoot =
-        shootPressed;
+      shootWithCrosshair(
+        2
+      );
 
     }
+
+
+    previousLeftShoot =
+      shootPressed;
 
   }
 
@@ -2245,7 +2606,7 @@ function updateControllers() {
 
 
 /* ========================================
-   キャラクター袋
+   キャラ袋
 ======================================== */
 
 function makeCharacterBag() {
@@ -2278,7 +2639,13 @@ function makeCharacterBag() {
             data.points,
 
           rare:
-            data.rare
+            data.rare,
+
+          superRare:
+            data.superRare,
+
+          enemy:
+            data.enemy
 
         });
 
@@ -2345,7 +2712,7 @@ function createHoles() {
 
   holeData.forEach(
 
-    (data,index) => {
+    data => {
 
       const hole =
         document.createElement(
@@ -2373,10 +2740,6 @@ function createHoles() {
         "--size",
         data.size + "%"
       );
-
-
-      hole.dataset.index =
-        index;
 
 
       const alien =
@@ -2418,12 +2781,38 @@ function createHoles() {
 
 
 /* ========================================
-   エイリアン出現
+   穴リセット
+======================================== */
+
+function clearHole(
+  hole,
+  alien
+) {
+
+  hole.classList.remove(
+    "active",
+    "rare",
+    "superRare",
+    "enemy"
+  );
+
+
+  alien.classList.remove(
+    "shot"
+  );
+
+}
+
+
+/* ========================================
+   キャラ出現
 ======================================== */
 
 function showRandomAlien() {
 
-  if (!gameRunning) {
+  if (
+    !gameRunning
+  ) {
 
     return;
 
@@ -2504,7 +2893,7 @@ function showRandomAlien() {
 
 
   /*
-    今回専用ID
+    古いタイマー誤作動防止
   */
 
   const spawnId =
@@ -2537,7 +2926,9 @@ function showRandomAlien() {
 
 
   hole.classList.remove(
-    "rare"
+    "rare",
+    "superRare",
+    "enemy"
   );
 
 
@@ -2552,14 +2943,32 @@ function showRandomAlien() {
   }
 
 
+  if (
+    character.superRare
+  ) {
+
+    hole.classList.add(
+      "superRare"
+    );
+
+  }
+
+
+  if (
+    character.enemy
+  ) {
+
+    hole.classList.add(
+      "enemy"
+    );
+
+  }
+
+
   hole.classList.add(
     "active"
   );
 
-
-  /*
-    出現時間
-  */
 
   const stayTime =
     1150;
@@ -2568,11 +2977,6 @@ function showRandomAlien() {
   setTimeout(
 
     () => {
-
-      /*
-        古いキャラのタイマーなら
-        今のキャラを消さない
-      */
 
       if (
         hole.dataset.spawnId
@@ -2591,18 +2995,9 @@ function showRandomAlien() {
         )
       ) {
 
-        hole.classList.remove(
-          "active"
-        );
-
-
-        hole.classList.remove(
-          "rare"
-        );
-
-
-        alien.classList.remove(
-          "shot"
+        clearHole(
+          hole,
+          alien
         );
 
       }
@@ -2617,7 +3012,7 @@ function showRandomAlien() {
 
 
 /* ========================================
-   30秒間出現
+   91体出現
 ======================================== */
 
 function startSpawning() {
@@ -2627,12 +3022,12 @@ function startSpawning() {
 
 
   /*
-    2体 × 15
+    2体×7 = 14
   */
 
   for (
     let i = 0;
-    i < 15;
+    i < 7;
     i++
   ) {
 
@@ -2644,12 +3039,12 @@ function startSpawning() {
 
 
   /*
-    3体 × 10
+    3体×15 = 45
   */
 
   for (
     let i = 0;
-    i < 10;
+    i < 15;
     i++
   ) {
 
@@ -2661,12 +3056,12 @@ function startSpawning() {
 
 
   /*
-    4体 × 5
+    4体×8 = 32
   */
 
   for (
     let i = 0;
-    i < 5;
+    i < 8;
     i++
   ) {
 
@@ -2678,7 +3073,13 @@ function startSpawning() {
 
 
   /*
-    順番ランダム
+    14 + 45 + 32
+    = 91
+  */
+
+
+  /*
+    出現数の順番ランダム
   */
 
   for (
@@ -2721,7 +3122,9 @@ function startSpawning() {
 
   function nextWave() {
 
-    if (!gameRunning) {
+    if (
+      !gameRunning
+    ) {
 
       return;
 
@@ -2776,14 +3179,13 @@ function startSpawning() {
     }
 
 
-    /*
-      最後は29秒台
-    */
-
     spawnTimer =
       setTimeout(
+
         nextWave,
+
         1000
+
       );
 
   }
@@ -2802,7 +3204,9 @@ function shootWithCrosshair(
   player
 ) {
 
-  if (!gameRunning) {
+  if (
+    !gameRunning
+  ) {
 
     return;
 
@@ -2914,11 +3318,9 @@ function shootWithCrosshair(
   }
 
 
-  /*
-    外れ
-  */
-
-  if (!hit) {
+  if (
+    !hit
+  ) {
 
     const gameRect =
       game.getBoundingClientRect();
@@ -3065,11 +3467,6 @@ function hitAlien(
 
     () => {
 
-      /*
-        新しいキャラなら
-        消さない
-      */
-
       if (
         hole.dataset.spawnId
         !==
@@ -3081,18 +3478,9 @@ function hitAlien(
       }
 
 
-      hole.classList.remove(
-        "active"
-      );
-
-
-      hole.classList.remove(
-        "rare"
-      );
-
-
-      alien.classList.remove(
-        "shot"
+      clearHole(
+        hole,
+        alien
       );
 
     },
@@ -3125,23 +3513,64 @@ function showPoints(
     "pointPopup";
 
 
-  popup.textContent =
-    "P"
-    +
-    player
-    +
-    " +"
-    +
-    points;
+  if (
+    points >= 0
+  ) {
+
+    popup.textContent =
+      "P"
+      +
+      player
+      +
+      " +"
+      +
+      points;
+
+  }
+
+  else {
+
+    popup.textContent =
+      "P"
+      +
+      player
+      +
+      " "
+      +
+      points;
+
+  }
 
 
-  popup.style.color =
+  if (
+    points < 0
+  ) {
 
-    player === 1
+    popup.style.color =
+      "#ff3b3b";
 
-      ? "#55eaff"
+  }
 
-      : "#ff6bba";
+  else if (
+    points === 10000
+  ) {
+
+    popup.style.color =
+      "#fff04a";
+
+  }
+
+  else {
+
+    popup.style.color =
+
+      player === 1
+
+        ? "#55eaff"
+
+        : "#ff6bba";
+
+  }
 
 
   popup.style.left =
@@ -3229,7 +3658,9 @@ let audioContext =
 
 function getAudioContext() {
 
-  if (!audioContext) {
+  if (
+    !audioContext
+  ) {
 
     audioContext =
 
@@ -3250,6 +3681,10 @@ function getAudioContext() {
 
 }
 
+
+/* ========================================
+   音
+======================================== */
 
 function playTone(
   frequency,
@@ -3328,6 +3763,92 @@ function playTone(
 function playHitSound(
   points
 ) {
+
+  /* -1000 */
+
+  if (
+    points === -1000
+  ) {
+
+    playTone(
+      180,
+      0.18
+    );
+
+
+    setTimeout(
+
+      () =>
+        playTone(
+          120,
+          0.22
+        ),
+
+      100
+
+    );
+
+
+    return;
+
+  }
+
+
+  /* 10000 */
+
+  if (
+    points === 10000
+  ) {
+
+    playTone(
+      900,
+      0.10
+    );
+
+
+    setTimeout(
+
+      () =>
+        playTone(
+          1200,
+          0.10
+        ),
+
+      80
+
+    );
+
+
+    setTimeout(
+
+      () =>
+        playTone(
+          1500,
+          0.10
+        ),
+
+      160
+
+    );
+
+
+    setTimeout(
+
+      () =>
+        playTone(
+          1900,
+          0.28
+        ),
+
+      240
+
+    );
+
+
+    return;
+
+  }
+
 
   if (
     points === 500
@@ -3432,27 +3953,49 @@ function playHitSound(
 
 
 /* ========================================
-   ゲーム開始
+   3 → 2 → 1 → カーテン
 ======================================== */
 
-function startGame() {
-
-  /*
-    Joy-Con設定が終わってなければ
-    開始しない
-  */
+function startIntro() {
 
   if (
+
     rightShootButton === null
 
     ||
 
     leftShootButton === null
+
+    ||
+
+    rightPadIndex === null
+
+    ||
+
+    leftPadIndex === null
+
   ) {
 
     return;
 
   }
+
+
+  if (
+    introRunning
+  ) {
+
+    return;
+
+  }
+
+
+  introRunning =
+    true;
+
+
+  gameRunning =
+    false;
 
 
   clearInterval(
@@ -3477,23 +4020,16 @@ function startGame() {
     GAME_TIME;
 
 
-  gameRunning =
-    true;
-
-
-  makeCharacterBag();
-
-
   scoreText1.textContent =
-    score1;
+    0;
 
 
   scoreText2.textContent =
-    score2;
+    0;
 
 
   timeText.textContent =
-    timeLeft;
+    GAME_TIME;
 
 
   aim1X =
@@ -3542,24 +4078,15 @@ function startGame() {
 
       hole => {
 
-        hole.classList.remove(
-          "active"
-        );
-
-
-        hole.classList.remove(
-          "rare"
-        );
-
-
         const alien =
           hole.querySelector(
             ".alien"
           );
 
 
-        alien.classList.remove(
-          "shot"
+        clearHole(
+          hole,
+          alien
         );
 
       }
@@ -3575,6 +4102,24 @@ function startGame() {
     "none";
 
 
+  introScreen.classList.remove(
+    "open"
+  );
+
+
+  introScreen.style.display =
+    "block";
+
+
+  countdownText.style.display =
+    "block";
+
+
+  startFlash.classList.remove(
+    "show"
+  );
+
+
   try {
 
     getAudioContext().resume();
@@ -3588,6 +4133,275 @@ function startGame() {
     );
 
   }
+
+
+  /* 3 */
+
+  showCountdownNumber(
+    "3"
+  );
+
+
+  playTone(
+    520,
+    0.12
+  );
+
+
+  /* 2 */
+
+  setTimeout(
+
+    () => {
+
+      showCountdownNumber(
+        "2"
+      );
+
+
+      playTone(
+        620,
+        0.12
+      );
+
+    },
+
+    750
+
+  );
+
+
+  /* 1 */
+
+  setTimeout(
+
+    () => {
+
+      showCountdownNumber(
+        "1"
+      );
+
+
+      playTone(
+        760,
+        0.15
+      );
+
+    },
+
+    1500
+
+  );
+
+
+  /* カーテン開く */
+
+  setTimeout(
+
+    () => {
+
+      countdownText.style.display =
+        "none";
+
+
+      introScreen.classList.add(
+        "open"
+      );
+
+
+      playCurtainSound();
+
+    },
+
+    2250
+
+  );
+
+
+  /* START */
+
+  setTimeout(
+
+    () => {
+
+      startFlash.classList.remove(
+        "show"
+      );
+
+
+      void startFlash.offsetWidth;
+
+
+      startFlash.classList.add(
+        "show"
+      );
+
+
+      playTone(
+        1000,
+        0.12
+      );
+
+
+      setTimeout(
+
+        () =>
+          playTone(
+            1400,
+            0.18
+          ),
+
+        90
+
+      );
+
+
+      beginActualGame();
+
+    },
+
+    3050
+
+  );
+
+
+  /* INTRO消す */
+
+  setTimeout(
+
+    () => {
+
+      introScreen.style.display =
+        "none";
+
+
+      introScreen.classList.remove(
+        "open"
+      );
+
+
+      startFlash.classList.remove(
+        "show"
+      );
+
+
+      introRunning =
+        false;
+
+    },
+
+    3750
+
+  );
+
+}
+
+
+/* ========================================
+   カウント数字
+======================================== */
+
+function showCountdownNumber(
+  number
+) {
+
+  countdownText.textContent =
+    number;
+
+
+  countdownText.classList.remove(
+    "countPop"
+  );
+
+
+  void countdownText.offsetWidth;
+
+
+  countdownText.classList.add(
+    "countPop"
+  );
+
+}
+
+
+/* ========================================
+   カーテン音
+======================================== */
+
+function playCurtainSound() {
+
+  playTone(
+    260,
+    0.18,
+    0.05
+  );
+
+
+  setTimeout(
+
+    () =>
+      playTone(
+        360,
+        0.22,
+        0.05
+      ),
+
+    130
+
+  );
+
+
+  setTimeout(
+
+    () =>
+      playTone(
+        520,
+        0.25,
+        0.05
+      ),
+
+    260
+
+  );
+
+}
+
+
+/* ========================================
+   実際のゲーム開始
+======================================== */
+
+function beginActualGame() {
+
+  score1 =
+    0;
+
+
+  score2 =
+    0;
+
+
+  timeLeft =
+    GAME_TIME;
+
+
+  gameRunning =
+    true;
+
+
+  makeCharacterBag();
+
+
+  scoreText1.textContent =
+    score1;
+
+
+  scoreText2.textContent =
+    score2;
+
+
+  timeText.textContent =
+    timeLeft;
 
 
   startSpawning();
@@ -3624,7 +4438,7 @@ function startGame() {
 
 
 /* ========================================
-   終了
+   GAME OVER
 ======================================== */
 
 function endGame() {
@@ -3651,24 +4465,15 @@ function endGame() {
 
       hole => {
 
-        hole.classList.remove(
-          "active"
-        );
-
-
-        hole.classList.remove(
-          "rare"
-        );
-
-
         const alien =
           hole.querySelector(
             ".alien"
           );
 
 
-        alien.classList.remove(
-          "shot"
+        clearHole(
+          hole,
+          alien
         );
 
       }
@@ -3693,6 +4498,7 @@ function endGame() {
 
   }
 
+
   else if (
     score2 > score1
   ) {
@@ -3701,6 +4507,7 @@ function endGame() {
       "🏆 PLAYER 2 WIN!";
 
   }
+
 
   else {
 
@@ -3724,7 +4531,7 @@ startButton.addEventListener(
 
   "click",
 
-  startGame
+  startIntro
 
 );
 
@@ -3733,7 +4540,7 @@ restartButton.addEventListener(
 
   "click",
 
-  startGame
+  startIntro
 
 );
 
@@ -3748,9 +4555,8 @@ resetControllerButton.addEventListener(
 
 
 /* ========================================
-   タップ確認用
-
-   iPad / マウスはP1
+   iPad / マウステスト
+   タップ = P1
 ======================================== */
 
 game.addEventListener(
@@ -3759,7 +4565,9 @@ game.addEventListener(
 
   event => {
 
-    if (!gameRunning) {
+    if (
+      !gameRunning
+    ) {
 
       return;
 
@@ -3882,7 +4690,5 @@ updateControllers();
 
 </script>
 
-
 </body>
-
 </html>
