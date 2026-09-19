@@ -1229,6 +1229,11 @@ let rightShootButton = null;
 
 let leftShootButton = null;
 
+let rightPadIndex = null;
+let leftPadIndex = null;
+
+let calibrationStep = "right";
+
 
 /* =========================
    キャラクター
@@ -1748,12 +1753,13 @@ function findPressedButton(
 
 function resetCalibration() {
 
-  rightShootButton =
-    null;
+  rightShootButton = null;
+  leftShootButton = null;
 
+  rightPadIndex = null;
+  leftPadIndex = null;
 
-  leftShootButton =
-    null;
+  calibrationStep = "right";
 
 
   rightSetup.textContent =
@@ -1779,34 +1785,241 @@ function resetCalibration() {
   );
 
 
-  setupInstruction.innerHTML =
-    "ZR・ZLを押して登録してね<br>どっちから押してもOK！";
+  setupInstruction.textContent =
+    "右Joy-Conの ZR を押してね";
 
 
-  startButton.disabled =
-    true;
-
+  startButton.disabled = true;
 }
 
 
 /* =========================
    ZR / ZL登録
-========================= */
+======================= */
 
-function updateCalibration(
-  rightPad,
-  leftPad
-) {
+function updateCalibration() {
 
   if (
-    gameRunning
-    ||
+    gameRunning ||
     introRunning
   ) {
-
     return;
+  }
+
+
+  const pads =
+    getConnectedPads();
+
+
+  /* =========================
+     ① 右Joy-ConのZR
+  ========================= */
+
+  if (
+    calibrationStep === "right"
+  ) {
+
+    for (const pad of pads) {
+
+      const pressed =
+        findPressedButton(pad);
+
+
+      if (pressed !== null) {
+
+        /*
+          このJoy-Con本体を
+          P1として固定
+        */
+
+        rightPadIndex =
+          pad.index;
+
+
+        rightShootButton =
+          pressed;
+
+
+        rightSetup.textContent =
+          "🔵 P1　右Joy-Con ZR：BUTTON "
+          +
+          pressed
+          +
+          " ✓";
+
+
+        rightSetup.classList.add(
+          "setupDone"
+        );
+
+
+        setupInstruction.textContent =
+          "ZRを離してね";
+
+
+        calibrationStep =
+          "waitRightRelease";
+
+
+        break;
+      }
+
+    }
 
   }
+
+
+  /* =========================
+     ② ZRを離す
+  ========================= */
+
+  else if (
+    calibrationStep ===
+    "waitRightRelease"
+  ) {
+
+    const rightPad =
+      navigator.getGamepads()[
+        rightPadIndex
+      ];
+
+
+    if (
+      rightPad &&
+      rightPad.buttons.every(
+        button => !button.pressed
+      )
+    ) {
+
+      calibrationStep =
+        "left";
+
+
+      setupInstruction.textContent =
+        "左Joy-Conの ZL を押してね";
+
+    }
+
+  }
+
+
+  /* =========================
+     ③ 左Joy-ConのZL
+  ========================= */
+
+  else if (
+    calibrationStep === "left"
+  ) {
+
+    for (const pad of pads) {
+
+      /*
+        ★右Joy-Conは絶対に
+        P2登録に使わない
+      */
+
+      if (
+        pad.index ===
+        rightPadIndex
+      ) {
+
+        continue;
+      }
+
+
+      const pressed =
+        findPressedButton(pad);
+
+
+      if (
+        pressed !== null
+      ) {
+
+        /*
+          このJoy-Conを
+          P2として固定
+        */
+
+        leftPadIndex =
+          pad.index;
+
+
+        leftShootButton =
+          pressed;
+
+
+        leftSetup.textContent =
+          "🩷 P2　左Joy-Con ZL：BUTTON "
+          +
+          pressed
+          +
+          " ✓";
+
+
+        leftSetup.classList.add(
+          "setupDone"
+        );
+
+
+        setupInstruction.textContent =
+          "ZLを離してね";
+
+
+        calibrationStep =
+          "waitLeftRelease";
+
+
+        break;
+      }
+
+    }
+
+  }
+
+
+  /* =========================
+     ④ ZLを離す
+  ========================= */
+
+  else if (
+    calibrationStep ===
+    "waitLeftRelease"
+  ) {
+
+    const leftPad =
+      navigator.getGamepads()[
+        leftPadIndex
+      ];
+
+
+    if (
+      leftPad &&
+      leftPad.buttons.every(
+        button => !button.pressed
+      )
+    ) {
+
+      calibrationStep =
+        "done";
+
+
+      setupInstruction.textContent =
+        "Joy-Con設定完了！";
+
+
+      setupInstruction.classList.add(
+        "setupDone"
+      );
+
+
+      startButton.disabled =
+        false;
+
+    }
+
+  }
+
+}
 
 
   /* 右 = P1 */
@@ -1915,7 +2128,7 @@ function updateCalibration(
 
   }
 
-}
+
 
 
 /* =========================
@@ -1998,20 +2211,23 @@ function getStickVector(
 
 function updateControllers() {
 
-  const rightPad =
-    getRightPad();
+updateCalibration();
 
 
-  const leftPad =
-    getLeftPad(
-      rightPad
-    );
+const pads =
+  navigator.getGamepads();
 
 
-  updateCalibration(
-    rightPad,
-    leftPad
-  );
+const rightPad =
+  rightPadIndex !== null
+    ? pads[rightPadIndex]
+    : null;
+
+
+const leftPad =
+  leftPadIndex !== null
+    ? pads[leftPadIndex]
+    : null;
 
 
   /* P1 */
